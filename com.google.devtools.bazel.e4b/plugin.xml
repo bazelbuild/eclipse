@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.jdt.core.classpathContainerInitializer">
+      <classpathContainerInitializer
+            class="com.google.devtools.bazel.e4b.classpath.BazelClasspathContainerInitilalizer"
+            id="com.google.devtools.bazel.e4b.BAZEL_CONTAINER">
+      </classpathContainerInitializer>
+   </extension>
+   <extension
+         point="org.eclipse.ui.newWizards">
+    <wizard
+          class="com.google.devtools.bazel.e4b.wizard.BazelWizard"
+          icon="resources/icon.ico"
+          id="com.google.devtools.bazel.e4b.wizard.bazelWizard"
+          name="Import Bazel Workspace"
+          project="true">
+           <description>Import a list of sources from a Bazel workspace into a Java project</description>
+    </wizard>
+   </extension>
+   <extension
+         id="com.google.devtools.bazel.e4b.projectNature"
+         point="org.eclipse.core.resources.natures">
+      <runtime>
+         <run
+               class="com.google.devtools.bazel.e4b.ProjectNature">
+         </run>
+      </runtime>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="com.google.devtools.bazel.e4b.preferences.BazelPreferencePage"
+            id="com.google.devtools.bazel.e4b.preferences"
+            name="Bazel Plugin Preferences">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="com.google.devtools.bazel.e4b.preferences.BazelPreferenceInitializer">
+      </initializer>
+   </extension>
+   <extension
+         id="com.google.devtools.bazel.e4b.builder"
+         point="org.eclipse.core.resources.builders">
+      <builder
+            callOnEmptyDelta="false"
+            hasNature="false"
+            isConfigurable="false"
+            supportsConfigurations="false">
+         <run
+               class="com.google.devtools.bazel.e4b.builder.BazelBuilder">
+         </run>
+      </builder>
+   </extension>
+
+</plugin>

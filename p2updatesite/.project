@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>com.google.devtools.bazel.e4b.p2updatesite</name>
+	<name>p2updatesite</name>
 	<comment></comment>
 	<projects>
 	</projects>

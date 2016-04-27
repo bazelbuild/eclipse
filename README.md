@@ -11,6 +11,15 @@ of directories you want to track.
 It is highly experimental and support is minimal. However, we are happy
 to accept contribution to make this support grows to a better shape.
 
+## Installation
+
+In Eclipse, run the software installer and add the following update
+site:
+[http://bazelbuild.github.io/e4b/p2updatesite](http://bazelbuild.github.io/e4b/p2updatesite).
+
+Then select "Eclipse 4 Bazel" under the "Uncategorized category". This
+will install the Eclipse plugin on your Eclipse.
+
 ## Missing features
 
 Interesting feature to add is first to be able to launch test from

@@ -20,6 +20,10 @@ site:
 Then select "Eclipse 4 Bazel" under the "Uncategorized category". This
 will install the Eclipse plugin on your Eclipse.
 
+## Using the plugin
+
+To import an existing Bazel project or start a new one, go to "Import Project..." > "Others".
+
 ## Missing features
 
 Interesting feature to add is first to be able to launch test from

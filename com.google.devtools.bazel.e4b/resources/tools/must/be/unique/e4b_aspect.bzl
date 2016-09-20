@@ -98,13 +98,13 @@ def _aspect_impl(target, ctx):
       all_deps += [str(dep.label) for dep in deps]
 
   if hasattr(target, "java"):
-    (java_rule_ide_info, java_ide_resolve_files) = java_rule_ide_info(target, ctx)
+    (java_rule_ide_info_struct, java_ide_resolve_files) = java_rule_ide_info(target, ctx)
     info = struct(
         label = str(target.label),
         kind = kind,
         dependencies = all_deps,
         build_file_artifact_location = ctx.build_file_path,
-    ) + java_rule_ide_info
+    ) + java_rule_ide_info_struct
     ide_resolve_files = ide_resolve_files | java_ide_resolve_files
     output = ctx.new_file(target.label.name + ".e4b-build.json")
     ctx.file_action(output, info.to_json())

@@ -3,5 +3,5 @@
    <description name="Eclipse 4 Bazel" url="https://bazelbuild.github.io/e4b">
       Eclipse plugin for Bazel
    </description>
-   <feature url="features/com.google.devtools.bazel.e4b.feature_0.0.1.201604271316.jar" id="com.google.devtools.bazel.e4b.feature" version="0.0.1.201604271316"/>
+   <feature url="features/com.google.devtools.bazel.e4b.feature_0.0.1.jar" id="com.google.devtools.bazel.e4b.feature" version="0.0.1"/>
 </site>

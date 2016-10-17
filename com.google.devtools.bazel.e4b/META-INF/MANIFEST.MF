@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse 4 Bazel
 Bundle-SymbolicName: com.google.devtools.bazel.e4b;singleton:=true
-Bundle-Version: 0.0.2.qualifier
+Bundle-Version: 0.0.2
 Bundle-Activator: com.google.devtools.bazel.e4b.Activator
 Bundle-Vendor: The Bazel Authors
 Require-Bundle: org.eclipse.ui.console,

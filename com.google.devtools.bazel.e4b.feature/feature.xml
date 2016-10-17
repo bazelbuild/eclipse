@@ -2,7 +2,7 @@
 <feature
       id="com.google.devtools.bazel.e4b.feature"
       label="Eclipse 4 Bazel"
-      version="0.0.2.qualifier"
+      version="0.0.2"
       provider-name="The Bazel Authors">
 
    <description url="http://bazel.io">

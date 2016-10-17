@@ -92,10 +92,11 @@ def _aspect_impl(target, ctx):
   for attr_name in DEPENDENCY_ATTRIBUTES:
     if hasattr(rule_attrs, attr_name):
       deps = getattr(rule_attrs, attr_name)
-      for dep in deps:
-        ide_info_text = ide_info_text | dep.intellij_info_files.ide_info_text
-        ide_resolve_files = ide_resolve_files | dep.intellij_info_files.ide_resolve_files
-      all_deps += [str(dep.label) for dep in deps]
+      if type(deps) == 'list':
+        for dep in deps:
+          ide_info_text = ide_info_text | dep.intellij_info_files.ide_info_text
+          ide_resolve_files = ide_resolve_files | dep.intellij_info_files.ide_resolve_files
+        all_deps += [str(dep.label) for dep in deps]
 
   if hasattr(target, "java"):
     (java_rule_ide_info_struct, java_ide_resolve_files) = java_rule_ide_info(target, ctx)

@@ -13,12 +13,12 @@ to accept contribution to make this support grows to a better shape.
 
 ## Installation
 
-In Eclipse, run the software installer and add the following update
-site:
+   * Start Eclipse
+   * Select "Help" > "Install Software"
+   * Add the update
+site
 [http://bazelbuild.github.io/e4b/p2updatesite](http://bazelbuild.github.io/e4b/p2updatesite).
-
-Then select "Eclipse 4 Bazel" under the "Uncategorized category". This
-will install the Eclipse plugin on your Eclipse.
+   * Select "Uncategorized category" > "Eclipse 4 Bazel"
 
 ## Using the plugin
 

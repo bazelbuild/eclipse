@@ -13,6 +13,8 @@ to accept contribution to make this support grows to a better shape.
 
 ## Installation
 
+This plugin was tested with Eclipse Mars (4.5) but should also work with Eclipse Neon (4.6).
+
    * Start Eclipse
    * Select "Help" > "Install Software"
    * Add the update

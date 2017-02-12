@@ -24,7 +24,7 @@ site
 
 ## Using the plugin
 
-To import an existing Bazel project or start a new one, go to "Import Project..." > "Others".
+To import an existing Bazel project or start a new one, go to "New Project..." > "Others".
 
 ## Missing features
 

@@ -25,6 +25,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.osgi.service.prefs.BackingStoreException;
 
 import com.google.devtools.bazel.e4b.Activator;
+import com.google.devtools.bazel.e4b.command.BazelNotFoundException;
 
 public class BazelClasspathContainerInitilalizer extends ClasspathContainerInitializer {
 
@@ -40,6 +41,8 @@ public class BazelClasspathContainerInitilalizer extends ClasspathContainerIniti
       }
     } catch (IOException | InterruptedException | BackingStoreException e) {
       Activator.error("Error while creating Bazel classpath container.", e);
+    } catch (BazelNotFoundException e) {
+      Activator.error("Bazel not found: " + e.getMessage());
     }
   }
 

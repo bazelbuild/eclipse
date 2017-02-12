@@ -23,6 +23,7 @@ import org.eclipse.jface.fieldassist.IContentProposalProvider;
 import com.google.common.collect.ImmutableList;
 import com.google.devtools.bazel.e4b.Activator;
 import com.google.devtools.bazel.e4b.command.BazelCommand.BazelInstance;
+import com.google.devtools.bazel.e4b.command.BazelNotFoundException;
 
 /**
  * A {@link IContentProposalProvider} to provide completion for Bazel. Use the
@@ -53,6 +54,8 @@ public class BazelTargetCompletionContentProposalProvider implements IContentPro
       Activator.error("Failed to run Bazel to get completion information", e);
     } catch (InterruptedException e) {
       Activator.error("Bazel was interrupted", e);
+    } catch (BazelNotFoundException e) {
+      Activator.error("Bazel not found: " + e.getMessage());
     }
     return null;
   }

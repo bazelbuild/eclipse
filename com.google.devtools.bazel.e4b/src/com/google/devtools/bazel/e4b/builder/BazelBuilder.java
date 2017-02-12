@@ -26,6 +26,7 @@ import org.osgi.service.prefs.BackingStoreException;
 
 import com.google.devtools.bazel.e4b.Activator;
 import com.google.devtools.bazel.e4b.command.BazelCommand.BazelInstance;
+import com.google.devtools.bazel.e4b.command.BazelNotFoundException;
 
 public class BazelBuilder extends IncrementalProjectBuilder {
 
@@ -46,6 +47,8 @@ public class BazelBuilder extends IncrementalProjectBuilder {
       instance.build(Activator.getTargets(project));
     } catch (BackingStoreException | IOException | InterruptedException e) {
       Activator.error("Failed to build " + project.getName(), e);
+    } catch (BazelNotFoundException e) {
+      Activator.error("Bazel not found: " + e.getMessage());
     }
     return null;
   }

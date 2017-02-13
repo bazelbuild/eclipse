@@ -18,6 +18,7 @@ eclipse_plugin(
     visibility = ["//visibility:public"],
     deps = [
         "//java/com/google/devtools/bazel/e4b/command",
+        "//java/com/google/devtools/bazel/e4b/projectviews",
         "@com_google_guava//jar",
     ],
 )

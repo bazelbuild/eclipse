@@ -42,6 +42,7 @@ import org.eclipse.swt.widgets.Text;
 
 import com.google.common.collect.ImmutableList;
 import com.google.devtools.bazel.e4b.Activator;
+import com.google.devtools.bazel.e4b.command.BazelNotFoundException;
 
 /**
  * This is a quick wizard page that ask the user for the various targets and source path he wants to
@@ -167,6 +168,8 @@ public class WorkspaceWizardPage extends WizardPage {
                 getWorkspaceRoot() + " does not seems to be a Bazel workspace");
           } catch (InterruptedException e1) {
             Activator.error("Bazel was interrupted", e1);
+          } catch (BazelNotFoundException e1) {
+            MessageDialog.openError(getShell(), "Error", "Cannot found Bazel: " + e1.getMessage());
           }
 
         }

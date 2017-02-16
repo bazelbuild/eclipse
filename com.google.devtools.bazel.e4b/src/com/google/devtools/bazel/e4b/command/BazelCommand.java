@@ -14,6 +14,10 @@
 
 package com.google.devtools.bazel.e4b.command;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.devtools.bazel.e4b.Activator;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -23,14 +27,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
-
-import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.devtools.bazel.e4b.Activator;
 
 /**
  * Main utility to call bazel commands, wrapping its input and output to the message console.
@@ -38,6 +38,11 @@ import com.google.devtools.bazel.e4b.Activator;
 public class BazelCommand {
 
   private static Joiner NEW_LINE_JOINER = Joiner.on("\n");
+  private static Pattern VERSION_PATTERN =
+      Pattern.compile("^([0-9]+)\\.([0-9]+)\\.([0-9]+)([^0-9].*)?$");
+
+  // Minimum bazel version needed to work with this plugin (currently 0.4.0)
+  private static int[] MINIMUM_BAZEL_VERSION = {0, 4, 0};
 
   // Returns the path of the resources file from this plugin.
   private static File getAspectWorkspace() {
@@ -63,20 +68,77 @@ public class BazelCommand {
       .build();
 
   private final Map<File, BazelInstance> instances = new HashMap<>();
-  private String bazel = Activator.DEFAULT_BAZEL_PATH;
+  private String bazel = null;
+
+  private String getBazelPath() throws BazelNotFoundException {
+    if (bazel == null) {
+      throw new BazelNotFoundException.BazelNotSetException();
+    }
+    return bazel;
+  }
 
   /**
-   * Set the path to the Bazel binary (/usr/local/bin/bazel by default).
+   * Set the path to the Bazel binary.
    */
   public synchronized void setBazelPath(String bazel) {
     this.bazel = bazel;
   }
 
   /**
+   * Check the version of Bazel: throws an exception if the version is incorrect or the path does
+   * not point to a Bazel binary.
+   */
+  public static void checkVersion(String bazel) throws BazelNotFoundException {
+    File path = new File(bazel);
+    if (!path.exists() || !path.canExecute()) {
+      throw new BazelNotFoundException.BazelNotExecutableException();
+    }
+    try {
+      Command command = Command.builder().setConsoleName(null).setDirectory(ASPECT_WORKSPACE)
+          .addArguments(bazel, "version")
+          .setStdoutLineSelector((s) -> s.startsWith("Build label:") ? s.substring(13) : null)
+          .build();
+      if (command.run() != 0) {
+        throw new BazelNotFoundException.BazelNotExecutableException();
+      }
+      List<String> result = command.getSelectedOutputLines();
+      if (result.size() != 1) {
+        throw new BazelNotFoundException.BazelTooOldException("unknown");
+      }
+      String version = result.get(0);
+      Matcher versionMatcher = VERSION_PATTERN.matcher(version);
+      if (versionMatcher == null || !versionMatcher.matches()) {
+        throw new BazelNotFoundException.BazelTooOldException(version);
+      }
+      int[] versionNumbers = {Integer.parseInt(versionMatcher.group(1)),
+          Integer.parseInt(versionMatcher.group(2)), Integer.parseInt(versionMatcher.group(3))};
+      if (compareVersion(versionNumbers, MINIMUM_BAZEL_VERSION) < 0) {
+        throw new BazelNotFoundException.BazelTooOldException(version);
+      }
+    } catch (IOException | InterruptedException e) {
+      throw new BazelNotFoundException.BazelNotExecutableException();
+    }
+  }
+
+  private static int compareVersion(int[] version1, int[] version2) {
+    for (int i = 0; i < Math.min(version1.length, version2.length); i++) {
+      if (version1[i] < version2[i]) {
+        return -1;
+      } else if (version1[i] > version2[i]) {
+        return 1;
+      }
+    }
+    return Integer.compare(version1.length, version2.length);
+  }
+
+  /**
    * Returns a {@link BazelInstance} for the given directory. It looks for the enclosing workspace
    * and returns the instance that correspond to it. If not in a workspace, returns null.
+   * 
+   * @throws BazelNotFoundException
    */
-  public BazelInstance getInstance(File directory) throws IOException, InterruptedException {
+  public BazelInstance getInstance(File directory)
+      throws IOException, InterruptedException, BazelNotFoundException {
     File workspaceRoot = getWorkspaceRoot(directory);
     if (workspaceRoot == null) {
       return null;
@@ -98,7 +160,8 @@ public class BazelCommand {
 
     private final Map<String, ImmutableMap<String, IdeBuildInfo>> buildInfoCache = new HashMap<>();
 
-    private BazelInstance(File workspaceRoot) throws IOException, InterruptedException {
+    private BazelInstance(File workspaceRoot)
+        throws IOException, InterruptedException, BazelNotFoundException {
       this.workspaceRoot = workspaceRoot;
       this.packagePath =
           String.join("", runBazel("info", "package_path")) + ":" + ASPECT_WORKSPACE.toString();
@@ -107,9 +170,11 @@ public class BazelCommand {
 
     /**
      * Returns the list of targets present in the BUILD files for the given sub-directories.
+     * 
+     * @throws BazelNotFoundException
      */
     public synchronized List<String> listTargets(File... directories)
-        throws IOException, InterruptedException {
+        throws IOException, InterruptedException, BazelNotFoundException {
       StringBuilder builder = new StringBuilder();
       for (File f : directories) {
         builder.append(f.toURI().relativize(workspaceRoot.toURI()).getPath()).append("/... ");
@@ -118,21 +183,23 @@ public class BazelCommand {
     }
 
     private synchronized List<String> runBazel(String... args)
-        throws IOException, InterruptedException {
+        throws IOException, InterruptedException, BazelNotFoundException {
       return runBazel(ImmutableList.<String>builder().add(args).build());
     }
 
     private synchronized List<String> runBazel(List<String> args)
-        throws IOException, InterruptedException {
+        throws IOException, InterruptedException, BazelNotFoundException {
       return BazelCommand.this.runBazelAndGetOuputLines(ConsoleType.WORKSPACE, workspaceRoot, args);
     }
 
     /**
      * Returns the IDE build information from running the aspect over the given list of targets. The
      * result is a list of of path to the output artifact created by the build.
+     * 
+     * @throws BazelNotFoundException
      */
     private synchronized List<String> buildIdeInfo(Collection<String> targets)
-        throws IOException, InterruptedException {
+        throws IOException, InterruptedException, BazelNotFoundException {
       return BazelCommand.this.runBazelAndGetErrorLines(ConsoleType.WORKSPACE, workspaceRoot,
           ImmutableList.<String>builder().add("build").add("--package_path", packagePath)
               .addAll(ASPECT_OPTIONS).addAll(targets).build(),
@@ -148,9 +215,11 @@ public class BazelCommand {
      * <p>
      * This method cache it results and won't recompute a previously computed version unless
      * {@link #markAsDirty()} has been called in between.
+     * 
+     * @throws BazelNotFoundException
      */
     public synchronized ImmutableMap<String, IdeBuildInfo> getIdeInfo(Collection<String> targets)
-        throws IOException, InterruptedException {
+        throws IOException, InterruptedException, BazelNotFoundException {
       String key = NEW_LINE_JOINER.join(targets);
       if (!buildInfoCache.containsKey(key)) {
         buildInfoCache.put(key, IdeBuildInfo.getInfo(buildIdeInfo(targets)));
@@ -172,9 +241,11 @@ public class BazelCommand {
 
     /**
      * Build a list of targets in the current workspace.
+     * 
+     * @throws BazelNotFoundException
      */
     public synchronized int build(List<String> targets, String... extraArgs)
-        throws IOException, InterruptedException {
+        throws IOException, InterruptedException, BazelNotFoundException {
       return BazelCommand.this.runBazel(workspaceRoot,
           ImmutableList.<String>builder().add("build", "--package_path", packagePath)
               .addAll(BUILD_OPTIONS).add(extraArgs).addAll(targets).build());
@@ -182,9 +253,11 @@ public class BazelCommand {
 
     /**
      * Run test on a list of targets in the current workspace.
+     * 
+     * @throws BazelNotFoundException
      */
     public synchronized int tests(List<String> targets, String... extraArgs)
-        throws IOException, InterruptedException {
+        throws IOException, InterruptedException, BazelNotFoundException {
       return BazelCommand.this.runBazel(workspaceRoot,
           ImmutableList.<String>builder().add("test").add("--package_path", packagePath)
               .addAll(BUILD_OPTIONS).add(extraArgs).addAll(targets).build());
@@ -207,8 +280,11 @@ public class BazelCommand {
     /**
      * Gives a list of target completions for the given beginning string. The result is the list of
      * possible completion for a target pattern starting with string.
+     * 
+     * @throws BazelNotFoundException
      */
-    public ImmutableList<String> complete(String string) throws IOException, InterruptedException {
+    public ImmutableList<String> complete(String string)
+        throws IOException, InterruptedException, BazelNotFoundException {
       if (string.equals("/") || string.isEmpty()) {
         return ImmutableList.of("//");
       } else if (string.contains(":")) {
@@ -267,7 +343,8 @@ public class BazelCommand {
     }
   }
 
-  private File getWorkspaceRoot(File directory) throws IOException, InterruptedException {
+  private File getWorkspaceRoot(File directory)
+      throws IOException, InterruptedException, BazelNotFoundException {
     List<String> result = runBazelAndGetOuputLines(ConsoleType.SYSTEM, directory,
         ImmutableList.of("info", "workspace"));
     if (result.size() > 0) {
@@ -277,15 +354,15 @@ public class BazelCommand {
   }
 
   private ImmutableList<String> runBazelAndGetOuputLines(ConsoleType type, File directory,
-      List<String> args) throws IOException, InterruptedException {
+      List<String> args) throws IOException, InterruptedException, BazelNotFoundException {
     return runBazelAndGetOuputLines(type, directory, args, (t) -> t);
   }
 
   private synchronized ImmutableList<String> runBazelAndGetOuputLines(ConsoleType type,
       File directory, List<String> args, Function<String, String> selector)
-          throws IOException, InterruptedException {
+      throws IOException, InterruptedException, BazelNotFoundException {
     Command command = Command.builder().setConsoleName(getConsoleName(type, directory))
-        .setDirectory(directory).addArguments(bazel.toString()).addArguments(args)
+        .setDirectory(directory).addArguments(getBazelPath()).addArguments(args)
         .setStdoutLineSelector(selector).build();
     if (command.run() == 0) {
       return command.getSelectedOutputLines();
@@ -295,9 +372,9 @@ public class BazelCommand {
 
   private synchronized ImmutableList<String> runBazelAndGetErrorLines(ConsoleType type,
       File directory, List<String> args, Function<String, String> selector)
-          throws IOException, InterruptedException {
+      throws IOException, InterruptedException, BazelNotFoundException {
     Command command = Command.builder().setConsoleName(getConsoleName(type, directory))
-        .setDirectory(directory).addArguments(bazel.toString()).addArguments(args)
+        .setDirectory(directory).addArguments(getBazelPath()).addArguments(args)
         .setStderrLineSelector(selector).build();
     if (command.run() == 0) {
       return command.getSelectedErrorLines();
@@ -306,13 +383,15 @@ public class BazelCommand {
   }
 
   private synchronized int runBazel(ConsoleType type, File directory, List<String> args,
-      OutputStream stdout, OutputStream stderr) throws IOException, InterruptedException {
+      OutputStream stdout, OutputStream stderr)
+      throws IOException, InterruptedException, BazelNotFoundException {
     return Command.builder().setConsoleName(getConsoleName(type, directory)).setDirectory(directory)
-        .addArguments(bazel.toString()).addArguments(args).setStandardOutput(stdout)
+        .addArguments(getBazelPath()).addArguments(args).setStandardOutput(stdout)
         .setStandardError(stderr).build().run();
   }
 
-  private int runBazel(File directory, List<String> args) throws IOException, InterruptedException {
+  private int runBazel(File directory, List<String> args)
+      throws IOException, InterruptedException, BazelNotFoundException {
     return runBazel(ConsoleType.WORKSPACE, directory, args, null, null);
   }
 

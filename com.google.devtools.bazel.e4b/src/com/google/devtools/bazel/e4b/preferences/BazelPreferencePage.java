@@ -14,12 +14,14 @@
 
 package com.google.devtools.bazel.e4b.preferences;
 
+import com.google.devtools.bazel.e4b.Activator;
+import com.google.devtools.bazel.e4b.command.BazelCommand;
+import com.google.devtools.bazel.e4b.command.BazelNotFoundException;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.FileFieldEditor;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
-
-import com.google.devtools.bazel.e4b.Activator;
 
 /**
  * Page to configure the e4b plugin. The only configuration parameter is the path to the Bazel
@@ -29,13 +31,30 @@ public class BazelPreferencePage extends FieldEditorPreferencePage
     implements
       IWorkbenchPreferencePage {
 
+  private static class BazelBinaryFieldEditor extends FileFieldEditor {
+    BazelBinaryFieldEditor(Composite parent) {
+      super("BAZEL_PATH", "Path to the &Bazel binary:", true, parent);
+      setValidateStrategy(VALIDATE_ON_KEY_STROKE);
+    }
+
+    @Override
+    protected boolean doCheckState() {
+      try {
+        BazelCommand.checkVersion(getTextControl().getText());
+        return true;
+      } catch (BazelNotFoundException e) {
+        setErrorMessage(e.getMessage());
+        return false;
+      }
+    }
+  }
+
   public BazelPreferencePage() {
     super(GRID);
   }
 
   public void createFieldEditors() {
-    addField(new FileFieldEditor("BAZEL_PATH", "Path to the &Bazel binary:", true,
-        getFieldEditorParent()));
+    addField(new BazelBinaryFieldEditor(getFieldEditorParent()));
   }
 
   @Override
@@ -43,5 +62,4 @@ public class BazelPreferencePage extends FieldEditorPreferencePage
     setPreferenceStore(Activator.getDefault().getPreferenceStore());
     setDescription("Bazel plugin settings");
   }
-
 }

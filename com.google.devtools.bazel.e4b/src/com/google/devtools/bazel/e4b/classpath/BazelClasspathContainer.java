@@ -38,6 +38,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.devtools.bazel.e4b.Activator;
 import com.google.devtools.bazel.e4b.command.BazelCommand.BazelInstance;
+import com.google.devtools.bazel.e4b.command.BazelNotFoundException;
 import com.google.devtools.bazel.e4b.command.IdeBuildInfo;
 import com.google.devtools.bazel.e4b.command.IdeBuildInfo.Jars;
 
@@ -49,7 +50,8 @@ public class BazelClasspathContainer implements IClasspathContainer {
   private final BazelInstance instance;
 
   public BazelClasspathContainer(IPath path, IJavaProject project)
-      throws IOException, InterruptedException, BackingStoreException, JavaModelException {
+      throws IOException, InterruptedException, BackingStoreException, JavaModelException,
+      BazelNotFoundException {
     this.path = path;
     this.project = project;
     this.instance = Activator.getBazelCommandInstance(project.getProject());
@@ -113,6 +115,9 @@ public class BazelClasspathContainer implements IClasspathContainer {
       return jarsToClasspathEntries(jars);
     } catch (JavaModelException | BackingStoreException | IOException | InterruptedException e) {
       Activator.error("Unable to compute classpath containers entries.", e);
+      return new IClasspathEntry[] {};
+    } catch (BazelNotFoundException e) {
+      Activator.error("Bazel not found: " + e.getMessage());
       return new IClasspathEntry[] {};
     }
   }

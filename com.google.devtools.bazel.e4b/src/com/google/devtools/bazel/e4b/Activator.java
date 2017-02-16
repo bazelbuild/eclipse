@@ -31,6 +31,7 @@ import org.osgi.service.prefs.Preferences;
 import com.google.common.collect.ImmutableList;
 import com.google.devtools.bazel.e4b.command.BazelCommand;
 import com.google.devtools.bazel.e4b.command.BazelCommand.BazelInstance;
+import com.google.devtools.bazel.e4b.command.BazelNotFoundException;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -122,9 +123,11 @@ public class Activator extends AbstractUIPlugin {
   /**
    * Return the {@link BazelInstance} corresponding to the given <code>project</code>. It looks for
    * the instance that runs for the workspace root configured for that project.
+   * 
+   * @throws BazelNotFoundException
    */
   public static BazelCommand.BazelInstance getBazelCommandInstance(IProject project)
-      throws BackingStoreException, IOException, InterruptedException {
+      throws BackingStoreException, IOException, InterruptedException, BazelNotFoundException {
     IScopeContext projectScope = new ProjectScope(project.getProject());
     Preferences projectNode = projectScope.getNode(Activator.PLUGIN_ID);
     File workspaceRoot =

@@ -61,9 +61,7 @@ public class BazelCommand {
 
   private static final File ASPECT_WORKSPACE = getAspectWorkspace();
   private static final List<String> BUILD_OPTIONS =
-      ImmutableList.of("--experimental_interleave_loading_and_analysis", "--strategy=Javac=worker",
-          "--noexperimental_check_output_files",
-          "--aspects=tools/must/be/unique/e4b_aspect.bzl%e4b_aspect");
+      ImmutableList.of("--watchfs", "--aspects=tools/must/be/unique/e4b_aspect.bzl%e4b_aspect");
   private static final List<String> ASPECT_OPTIONS = ImmutableList
       .<String>builder().addAll(BUILD_OPTIONS).add("-k",
           "--output_groups=ide-info-text,ide-resolve,-_,-defaults", "--experimental_show_artifacts")
@@ -364,7 +362,7 @@ public class BazelCommand {
       File directory, List<String> args, Function<String, String> selector)
       throws IOException, InterruptedException, BazelNotFoundException {
     Command command = Command.builder().setConsoleName(getConsoleName(type, directory))
-        .setDirectory(directory).addArguments(getBazelPath(), "--watchfs").addArguments(args)
+        .setDirectory(directory).addArguments(getBazelPath()).addArguments(args)
         .setStdoutLineSelector(selector).build();
     if (command.run() == 0) {
       return command.getSelectedOutputLines();
@@ -376,7 +374,7 @@ public class BazelCommand {
       File directory, List<String> args, Function<String, String> selector)
       throws IOException, InterruptedException, BazelNotFoundException {
     Command command = Command.builder().setConsoleName(getConsoleName(type, directory))
-        .setDirectory(directory).addArguments(getBazelPath(), "--watchfs").addArguments(args)
+        .setDirectory(directory).addArguments(getBazelPath()).addArguments(args)
         .setStderrLineSelector(selector).build();
     if (command.run() == 0) {
       return command.getSelectedErrorLines();
@@ -388,7 +386,7 @@ public class BazelCommand {
       OutputStream stdout, OutputStream stderr)
       throws IOException, InterruptedException, BazelNotFoundException {
     return Command.builder().setConsoleName(getConsoleName(type, directory)).setDirectory(directory)
-        .addArguments(getBazelPath(), "--watchfs").addArguments(args).setStandardOutput(stdout)
+        .addArguments(getBazelPath()).addArguments(args).setStandardOutput(stdout)
         .setStandardError(stderr).build().run();
   }
 

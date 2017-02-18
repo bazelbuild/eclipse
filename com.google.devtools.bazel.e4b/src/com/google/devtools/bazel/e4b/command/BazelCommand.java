@@ -17,11 +17,9 @@ package com.google.devtools.bazel.e4b.command;
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.devtools.bazel.e4b.Activator;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -29,8 +27,6 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.Platform;
 
 /**
  * Main utility to call bazel commands, wrapping its input and output to the message console.
@@ -44,24 +40,14 @@ public class BazelCommand {
   // Minimum bazel version needed to work with this plugin (currently 0.4.0)
   private static int[] MINIMUM_BAZEL_VERSION = {0, 4, 0};
 
-  // Returns the path of the resources file from this plugin.
-  private static File getAspectWorkspace() {
-    try {
-      URL url = Platform.getBundle(Activator.PLUGIN_ID).getEntry("resources");
-      URL resolved = FileLocator.resolve(url);
-      return new File(resolved.getPath());
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
   private static enum ConsoleType {
     NO_CONSOLE, SYSTEM, WORKSPACE
   }
 
-  private static final File ASPECT_WORKSPACE = getAspectWorkspace();
+  // TODO: Inject
+  private static final BazelAspectLocation ASPECT_LOCATION = new BazelAspectLocationImpl();
   private static final List<String> BUILD_OPTIONS =
-      ImmutableList.of("--watchfs", "--aspects=tools/must/be/unique/e4b_aspect.bzl%e4b_aspect");
+      ImmutableList.of("--watchfs", "--aspects=" + ASPECT_LOCATION.getAspectLabel());
   private static final List<String> ASPECT_OPTIONS = ImmutableList
       .<String>builder().addAll(BUILD_OPTIONS).add("-k",
           "--output_groups=ide-info-text,ide-resolve,-_,-defaults", "--experimental_show_artifacts")
@@ -94,7 +80,8 @@ public class BazelCommand {
       throw new BazelNotFoundException.BazelNotExecutableException();
     }
     try {
-      Command command = Command.builder().setConsoleName(null).setDirectory(ASPECT_WORKSPACE)
+      Command command = Command.builder().setConsoleName(null)
+          .setDirectory(ASPECT_LOCATION.getWorkspaceDirectory())
           .addArguments(bazel, "version")
           .setStdoutLineSelector((s) -> s.startsWith("Build label:") ? s.substring(13) : null)
           .build();
@@ -164,7 +151,8 @@ public class BazelCommand {
         throws IOException, InterruptedException, BazelNotFoundException {
       this.workspaceRoot = workspaceRoot;
       this.packagePath =
-          String.join("", runBazel("info", "package_path")) + ":" + ASPECT_WORKSPACE.toString();
+          String.join("", runBazel("info", "package_path")) + ":"
+              + ASPECT_LOCATION.getWorkspaceDirectory().toString();
       this.execRoot = new File(String.join("", runBazel("info", "execution_root")));
     }
 

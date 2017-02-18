@@ -32,23 +32,18 @@ import java.util.function.Function;
  */
 final class Command {
 
-  // TODO: inject
-  private final CommandConsoleFactory consoleFactory = new CommandConsoleFactoryImpl();
-
   private final File directory;
   private final ImmutableList<String> args;
   private final SelectOutputStream stdout;
   private final SelectOutputStream stderr;
   private boolean executed = false;
 
-  private Command(String consoleName, File directory, ImmutableList<String> args,
+  private Command(CommandConsole console, File directory, ImmutableList<String> args,
       Function<String, String> stdoutSelector, Function<String, String> stderrSelector,
       OutputStream stdout, OutputStream stderr) throws IOException {
     this.directory = directory;
     this.args = args;
-    if (consoleName != null) {
-      CommandConsole console = consoleFactory.get(consoleName,
-          "Running " + String.join(" ", args) + " from " + directory.toString());
+    if (console != null) {
       if (stdout == null) {
         stdout = console.createOutputStream();
       }
@@ -135,10 +130,12 @@ final class Command {
     private OutputStream stderr = null;
     private Function<String, String> stdoutSelector;
     private Function<String, String> stderrSelector;
+    private final CommandConsoleFactory consoleFactory;
 
-    private Builder() {
+    private Builder(final CommandConsoleFactory consoleFactory) {
       // Default to the current working directory
       this.directory = new File(System.getProperty("user.dir"));
+      this.consoleFactory = consoleFactory;
     }
 
     /**
@@ -243,7 +240,11 @@ final class Command {
      */
     public Command build() throws IOException {
       Preconditions.checkNotNull(directory);
-      return new Command(consoleName, directory, args.build(), stdoutSelector, stderrSelector,
+      ImmutableList<String> args = this.args.build();
+      CommandConsole console = consoleName == null ? null
+          : consoleFactory.get(consoleName,
+              "Running " + String.join(" ", args) + " from " + directory.toString());
+      return new Command(console, directory, args, stdoutSelector, stderrSelector,
           stdout, stderr);
     }
   }
@@ -251,7 +252,7 @@ final class Command {
   /**
    * Returns a {@link Builder} object to use to create a {@link Command} object.
    */
-  static Builder builder() {
-    return new Builder();
+  public static Builder builder(CommandConsoleFactory consoleFactory) {
+    return new Builder(consoleFactory);
   }
 }

@@ -61,7 +61,7 @@ public class Activator extends AbstractUIPlugin {
   public void start(BundleContext context) throws Exception {
     plugin = this;
     super.start(context);
-    this.command = new BazelCommand();
+    this.command = new BazelCommand(new BazelAspectLocationImpl(), new CommandConsoleFactoryImpl());
     // Get the bazel path from the settings
     this.command.setBazelPath(getPreferenceStore().getString("BAZEL_PATH"));
     getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {

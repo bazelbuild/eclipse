@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package com.google.devtools.bazel.e4b.command;
+package com.google.devtools.bazel.e4b;
 
+import com.google.devtools.bazel.e4b.command.CommandConsole;
 import com.google.devtools.bazel.e4b.command.CommandConsole.CommandConsoleFactory;
 import java.io.IOException;
 import java.io.OutputStream;

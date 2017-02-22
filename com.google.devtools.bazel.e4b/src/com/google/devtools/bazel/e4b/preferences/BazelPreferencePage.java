@@ -15,7 +15,6 @@
 package com.google.devtools.bazel.e4b.preferences;
 
 import com.google.devtools.bazel.e4b.Activator;
-import com.google.devtools.bazel.e4b.command.BazelCommand;
 import com.google.devtools.bazel.e4b.command.BazelNotFoundException;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.FileFieldEditor;
@@ -40,7 +39,7 @@ public class BazelPreferencePage extends FieldEditorPreferencePage
     @Override
     protected boolean doCheckState() {
       try {
-        BazelCommand.checkVersion(getTextControl().getText());
+        Activator.getDefault().getCommand().checkVersion(getTextControl().getText());
         return true;
       } catch (BazelNotFoundException e) {
         setErrorMessage(e.getMessage());

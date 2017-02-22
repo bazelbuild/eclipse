@@ -14,22 +14,14 @@
 
 package com.google.devtools.bazel.e4b.command;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import com.google.devtools.bazel.e4b.command.CommandConsole.CommandConsoleFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.function.Function;
-
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.console.ConsolePlugin;
-import org.eclipse.ui.console.IConsole;
-import org.eclipse.ui.console.IConsoleManager;
-import org.eclipse.ui.console.MessageConsole;
-import org.eclipse.ui.console.MessageConsoleStream;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 
 /**
  * A utility class to spawn a command and parse its output. It allow to filter the output,
@@ -39,6 +31,9 @@ import com.google.common.collect.ImmutableList;
  * This class can only be initialized using a builder created with the {@link #builder()} method.
  */
 final class Command {
+
+  // TODO: inject
+  private final CommandConsoleFactory consoleFactory = new CommandConsoleFactoryImpl();
 
   private final File directory;
   private final ImmutableList<String> args;
@@ -52,16 +47,13 @@ final class Command {
     this.directory = directory;
     this.args = args;
     if (consoleName != null) {
-      MessageConsole console = findConsole(consoleName);
-      MessageConsoleStream stream = console.newMessageStream();
-      stream.setActivateOnWrite(true);
-      stream.write("*** Running " + String.join("", args.toString()) + " from "
-          + directory.toString() + " ***\n");
+      CommandConsole console = consoleFactory.get(consoleName,
+          "Running " + String.join(" ", args) + " from " + directory.toString());
       if (stdout == null) {
-        stdout = console.newMessageStream();
+        stdout = console.createOutputStream();
       }
       if (stderr == null) {
-        stderr = getErrorStream(console);
+        stderr = console.createErrorStream();
       }
     }
     this.stderr = new SelectOutputStream(stderr, stderrSelector);
@@ -89,33 +81,6 @@ final class Command {
       stdout.close();
     }
     return r;
-  }
-
-  // Taken from the eclipse website, find a console
-  private static MessageConsole findConsole(String name) {
-    ConsolePlugin plugin = ConsolePlugin.getDefault();
-    IConsoleManager conMan = plugin.getConsoleManager();
-    IConsole[] existing = conMan.getConsoles();
-    for (int i = 0; i < existing.length; i++) {
-      if (name.equals(existing[i].getName())) {
-        return (MessageConsole) existing[i];
-      }
-    }
-    // no console found, so create a new one
-    MessageConsole myConsole = new MessageConsole(name, null);
-    conMan.addConsoles(new IConsole[] {myConsole});
-    return myConsole;
-  }
-
-  // Get the error stream for the given console (a stream that print in red).
-  private static MessageConsoleStream getErrorStream(MessageConsole console) {
-    final MessageConsoleStream errorStream = console.newMessageStream();
-    Display display = Display.getCurrent();
-    if (display == null) {
-      display = Display.getDefault();
-    }
-    display.asyncExec(() -> errorStream.setColor(new Color(null, 255, 0, 0)));
-    return errorStream;
   }
 
   // Launch a thread to copy all data from inputStream to outputStream

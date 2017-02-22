@@ -6,3 +6,4 @@ bin
 p2updatesite/*.jar
 p2updatesite/features
 p2updatesite/plugins
+/bazel-*

@@ -58,6 +58,7 @@ public class SelectOutputStream extends OutputStream {
 
   @Override
   public void write(int b) throws IOException {
+    Preconditions.checkState(!closed, "Attempted to write on a closed stream");
     byte b0 = (byte) b;
     if (b0 == '\n') {
       select(true);

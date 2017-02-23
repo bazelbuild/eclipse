@@ -85,7 +85,7 @@ public class CommandTest {
     assertThat(cmd.run()).isEqualTo(0);
     String stdoutStr = new String(stdout.toByteArray(), StandardCharsets.UTF_8).trim();
     String stderrStr = new String(stderr.toByteArray(), StandardCharsets.UTF_8).trim();
-    
+
     assertThat(stdoutStr).isEqualTo("a");
     assertThat(stderrStr).isEqualTo("b");
     assertThat(cmd.getSelectedErrorLines()).containsExactly("a");
@@ -140,6 +140,7 @@ public class CommandTest {
     builder.addArguments("pwd");
     Command cmd = builder.build();
     assertThat(cmd.run()).isEqualTo(0);
+    assertThat(cmd.getSelectedErrorLines()).isEmpty();
     assertThat(cmd.getSelectedOutputLines()).containsExactly(folder.getRoot().getCanonicalPath());
   }
 }

@@ -64,11 +64,19 @@ final class Command {
     executed = true;
     ProcessBuilder builder = new ProcessBuilder(args);
     builder.directory(directory);
+    builder.redirectOutput(ProcessBuilder.Redirect.PIPE);
+    builder.redirectError(ProcessBuilder.Redirect.PIPE);
     Process process = builder.start();
-    copyStream(process.getErrorStream(), stderr);
+    Thread err = copyStream(process.getErrorStream(), stderr);
     // seriously? That's stdout, why is it called getInputStream???
-    copyStream(process.getInputStream(), stdout);
+    Thread out = copyStream(process.getInputStream(), stdout);
     int r = process.waitFor();
+    if (err != null) {
+      err.join();
+    }
+    if (out != null) {
+      out.join();
+    }
     synchronized (stderr) {
       stderr.close();
     }
@@ -78,24 +86,39 @@ final class Command {
     return r;
   }
 
-  // Launch a thread to copy all data from inputStream to outputStream
-  private static void copyStream(InputStream inputStream, OutputStream outputStream) {
-    if (outputStream != null) new Thread(new Runnable() {
-      @Override
-      public void run() {
-        byte[] buffer = new byte[4096];
-        int read;
-        try {
-          while ((read = inputStream.read(buffer)) > 0) {
-            synchronized (outputStream) {
-              outputStream.write(buffer, 0, read);
-            }
+  private static class CopyStreamRunnable implements Runnable {
+    private InputStream inputStream;
+    private OutputStream outputStream;
+
+    CopyStreamRunnable(InputStream inputStream, OutputStream outputStream) {
+      this.inputStream = inputStream;
+      this.outputStream = outputStream;
+    }
+
+    @Override
+    public void run() {
+      byte[] buffer = new byte[4096];
+      int read;
+      try {
+        while ((read = inputStream.read(buffer)) > 0) {
+          synchronized (outputStream) {
+            outputStream.write(buffer, 0, read);
           }
-        } catch (IOException ex) {
-          // we simply terminate the thread on exceptions
         }
+      } catch (IOException ex) {
+        // we simply terminate the thread on exceptions
       }
-    }).start();
+    }
+  }
+
+  // Launch a thread to copy all data from inputStream to outputStream
+  private static Thread copyStream(InputStream inputStream, OutputStream outputStream) {
+    if (outputStream != null) {
+      Thread t = new Thread(new CopyStreamRunnable(inputStream, outputStream), "CopyStream");
+      t.start();
+      return t;
+    }
+    return null;
   }
 
   /**

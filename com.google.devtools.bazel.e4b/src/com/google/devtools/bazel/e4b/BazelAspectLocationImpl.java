@@ -44,7 +44,7 @@ class BazelAspectLocationImpl implements BazelAspectLocation {
 
   @Override
   public String getAspectLabel() {
-    return "//tools/must/be/unique:e4b_aspect.bzl%e4b_aspect.bzl";
+    return "//tools/must/be/unique:e4b_aspect.bzl%e4b_aspect";
   }
 
 }

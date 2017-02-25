@@ -24,9 +24,7 @@ def struct_omit_none(**kwargs):
     return struct(**d)
 
 def artifact_location(file):
-  if file == None:
-    return None
-  return ((file.root.path + "/") if not file.is_source else "") + file.short_path
+  return None if file == None else file.path
 
 def library_artifact(java_output):
   if java_output == None or java_output.class_jar == None:

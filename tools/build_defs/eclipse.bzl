@@ -15,8 +15,13 @@
 # TODO(dmarting): mirror those jars.
 # TODO(dmarting): Provide checksums for those files.
 _EQUINOX_MIRROR_URL="http://download.eclipse.org/eclipse/updates/"
-_ECLIPSE_VERSION="4.5/R-4.5.2-201602121500"
-_DOWNLOAD_URL = _EQUINOX_MIRROR_URL + "/" + _ECLIPSE_VERSION + "/plugins/%s_%s.jar"
+_ECLIPSE_VERSION="4.5.2-201602121500"
+_DOWNLOAD_URL = "%s/%s/R-%s/plugins/%s_%s.jar" % (
+    _EQUINOX_MIRROR_URL,
+    ".".join(_ECLIPSE_VERSION.split(".", 3)[0:2]),
+    _ECLIPSE_VERSION,
+    "%s",
+    "%s")
 
 # TODO(dmarting): make this configurable?
 _DECLARED_DEPS = [
@@ -69,13 +74,19 @@ _ECLIPSE_PLUGIN_DEPS = {
 }
 
 
+def _load_eclipse_dep(plugin, version):
+  native.http_file(
+    name = plugin.replace(".", "_"),
+    url = _DOWNLOAD_URL % (plugin, version),
+  )
+
+load("//tools/build_defs:eclipse_platform.bzl", "eclipse_platform")
+
 def load_eclipse_deps():
   """Load dependencies of the Eclipse plugin."""
   for plugin in _ECLIPSE_PLUGIN_DEPS:
-    native.http_file(
-      name = plugin.replace(".", "_"),
-      url = _DOWNLOAD_URL % (plugin, _ECLIPSE_PLUGIN_DEPS[plugin]),
-    )
+    _load_eclipse_dep(plugin, _ECLIPSE_PLUGIN_DEPS[plugin])
+  eclipse_platform(name="org_eclipse_equinox", version=_ECLIPSE_VERSION)
 
 
 def eclipse_plugin(name, version, bundle_name, activator=None,
@@ -182,6 +193,14 @@ def _eclipse_feature_impl(ctx):
                    ctx.outputs.out.path,
                    "feature.xml=" + feature_xml.path],
   )
+  return struct(
+      eclipse_feature=struct(
+          file=ctx.outputs.out,
+          id=ctx.label.name,
+          version=ctx.attr.version,
+          plugins=ctx.files.plugins
+      )
+  )
 
 
 eclipse_feature = rule(
@@ -209,20 +228,60 @@ eclipse_feature = rule(
 """Create an eclipse feature jar."""
 
 
-# TODO(dmarting): implement eclipse_p2updatesite.
-# An p2 site is a site which has the following layout:
-# /site.xml (see p2updatesite/site.xml)
-# /artifacts.jar
-#   jar that contains only one XML file called artifacts.xml.
-#   This file contains the list of artifacts available on that
-#   update site, and the mapping between the name of the artifact,
-#   and the file position.
-# /content.jar
-#   jar that contains only one XML file called content.xml.
-#   This XML file describe which feature are available in that
-#   update site and their description (so a client may read only
-#   that file to list the content of the repository to the user).
-# /plugins
-#   plugin1_v1.jar -> OSGi Bundle for eclipse
-# /features
-#   feature1_v1.jar -> feature jar
+def _eclipse_p2updatesite_impl(ctx):
+  feat_files = [f.eclipse_feature.file for f in ctx.attr.eclipse_features]
+  args = [
+    "--output=" + ctx.outputs.out.path,
+    "--java=" + ctx.executable._java.path,
+    "--eclipse_launcher=" + ctx.file._eclipse_launcher.path,
+    "--name=" + ctx.attr.label,
+    "--url=" + ctx.attr.url,
+    "--description=" + ctx.attr.description]
+
+  _plugins = {}
+  for f in ctx.attr.eclipse_features:
+    args.append("--feature=" + f.eclipse_feature.file.path)
+    args.append("--feature_id=" + f.eclipse_feature.id)
+    args.append("--feature_version=" + f.eclipse_feature.version)
+    for p in f.eclipse_feature.plugins:
+      if p.path not in _plugins:
+        _plugins[p.path] = p
+  plugins = [_plugins[p] for p in _plugins]
+
+  ctx.action(
+      outputs=[ctx.outputs.out],
+      inputs=[
+          ctx.executable._java,
+          ctx.file._eclipse_launcher,
+          ] + ctx.files._jdk + ctx.files._eclipse_platform + feat_files + plugins,
+      executable = ctx.executable._site_builder,
+      arguments = args + ["--bundle=" + p.path for p in plugins])
+
+
+eclipse_p2updatesite = rule(
+   implementation=_eclipse_p2updatesite_impl,
+   attrs = {
+       "label": attr.string(mandatory=True),
+       "description": attr.string(mandatory=True),
+       "url": attr.string(mandatory=True),
+       "eclipse_features": attr.label_list(providers=["eclipse_feature"]),
+       "_site_builder": attr.label(
+           default=Label("//tools/build_defs:site_builder"),
+           executable=True,
+           cfg="host"),
+       "_zipper": attr.label(
+           default=Label("@bazel_tools//tools/zip:zipper"),
+           executable=True,
+           cfg="host"),
+        "_java": attr.label(
+           default=Label("@bazel_tools//tools/jdk:java"),
+           executable=True,
+           cfg="host"),
+        "_jdk": attr.label(default=Label("@bazel_tools//tools/jdk:jdk")),
+        "_eclipse_launcher": attr.label(
+            default=Label("@org_eclipse_equinox//:launcher"),
+            allow_single_file=True),
+        "_eclipse_platform": attr.label(default=Label("@org_eclipse_equinox//:platform")),
+    },
+    outputs = {"out": "%{name}.zip"})
+"""Create an eclipse p2update site inside a ZIP file."""

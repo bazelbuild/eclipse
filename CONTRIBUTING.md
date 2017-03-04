@@ -17,11 +17,13 @@ Before you start working on a larger contribution, you should get in touch
 with us first. Use the issue tracker to explain your idea so we can help and
 possibly guide you.
 
-### Code reviews and other contributions.
-**All submissions, including submissions by project members, require review.**
-Please follow the instructions in [the contributors documentation](http://bazel.io/contributing.html).
-
 ### The small print
 Contributions made by corporations are covered by a different agreement than
 the one above, the
 [Software Grant and Corporate Contributor License Agreement](https://cla.developers.google.com/about/google-corporate).
+
+
+## Contributing
+
+Please see the [contributing page on the wiki](https://github.com/bazelbuild/e4b/wiki/Contributing)
+on more practical matters on how to contribute to e4b.

@@ -201,8 +201,9 @@ eclipse_feature = rule(
        "_zipper": attr.label(default=Label("@bazel_tools//tools/zip:zipper"),
                              executable=True,
                              cfg="host"),
-       "_tpl": attr.label(default=Label("//tools/build_defs:feature.xml.tpl"),
-                          allow_single_file=True),
+       "_builder": attr.label(default=Label("//tools/build_defs:feature_builder"),
+                              executable=True,
+                              cfg="host"),
     },
     outputs = {"out": "%{name}_%{version}.jar"})
 """Create an eclipse feature jar."""

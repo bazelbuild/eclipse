@@ -97,7 +97,9 @@ def eclipse_plugin(name, version, bundle_name, activator=None,
               "deps",
               "classpath_resources",
               "deploy_manifest_lines",
+              "visibility",
               "main_class"]}
+  visibility = kwargs["visibility"] if "visibility" in kwargs else None
   # Generate the .api_description to put in the final jar
   native.genrule(
     name = name + ".api_description",
@@ -148,11 +150,64 @@ EOF
     outs = ["%s_%s.jar" % (name, version)],
     cmd = "cp $< $@",
     output_to_bindir = 1,
+    visibility = visibility,
   )
 
 
-# TODO(dmarting): implement eclipse_feature.
-# An eclipse feature is jar with only the feature.xml file in it.
+def _eclipse_feature_impl(ctx):
+  feature_xml = ctx.new_file(ctx.outputs.out, ctx.label.name + ".xml")
+  ctx.action(
+    outputs = [feature_xml],
+    inputs = [ctx.file.license],
+    executable = ctx.executable._builder,
+    arguments = [
+      "--output=" + feature_xml.path,
+      "--id=" + ctx.label.name,
+      "--label=" + ctx.attr.label,
+      "--version=" + ctx.attr.version,
+      "--provider=" + ctx.attr.provider,
+      "--url=" + ctx.attr.url,
+      "--description=" + ctx.attr.description,
+      "--copyright=" + ctx.attr.copyright,
+      "--license_url=" + ctx.attr.license_url,
+      "--license=" + ctx.file.license.path] + [
+        "--site=%s=%s" % (site, ctx.attr.sites[site])
+        for site in ctx.attr.sites] + [
+          "--plugin=" + p.basename for p in ctx.files.plugins])
+  ctx.action(
+      outputs = [ctx.outputs.out],
+      inputs = [feature_xml],
+      executable = ctx.executable._zipper,
+      arguments = ["c",
+                   ctx.outputs.out.path,
+                   "feature.xml=" + feature_xml.path],
+  )
+
+
+eclipse_feature = rule(
+   implementation=_eclipse_feature_impl,
+   attrs = {
+       "label": attr.string(mandatory=True),
+       "version": attr.string(mandatory=True),
+       "provider": attr.string(mandatory=True),
+       "description": attr.string(mandatory=True),
+       "url": attr.string(mandatory=True),
+       "copyright": attr.string(mandatory=True),
+       "license_url": attr.string(mandatory=True),
+       "license": attr.label(mandatory=True, allow_single_file=True),
+       "sites": attr.string_dict(),
+       # TODO(dmarting): restrict what can be passed to the plugins attribute.
+       "plugins": attr.label_list(),
+       "_zipper": attr.label(default=Label("@bazel_tools//tools/zip:zipper"),
+                             executable=True,
+                             cfg="host"),
+       "_builder": attr.label(default=Label("//tools/build_defs:feature_builder"),
+                              executable=True,
+                              cfg="host"),
+    },
+    outputs = {"out": "%{name}_%{version}.jar"})
+"""Create an eclipse feature jar."""
+
 
 # TODO(dmarting): implement eclipse_p2updatesite.
 # An p2 site is a site which has the following layout:

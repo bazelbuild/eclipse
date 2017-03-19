@@ -5,3 +5,9 @@ py_binary(
     srcs = ["feature_builder.py"],
     deps = ["@com_google_python_gflags//:gflags"],
 )
+
+py_binary(
+    name = "site_builder",
+    srcs = ["site_builder.py"],
+    deps = ["@com_google_python_gflags//:gflags"],
+)

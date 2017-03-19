@@ -12,4 +12,5 @@ eclipse_feature(
     sites = {"Bazel": "https://bazel.build"},
     url = "https://github.com/bazelbuild/e4b",
     version = "0.0.3.qualifier",
+    visibility = ["//visibility:public"],
 )

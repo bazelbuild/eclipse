@@ -102,10 +102,10 @@ def main(unused_argv):
   _plugins(feature, FLAGS.plugin)
 
   # Pretty print the resulting tree
-  output = ElementTree.tostring(feature, 'utf-8')
+  output = ElementTree.tostring(feature, "utf-8")
   reparsed = minidom.parseString(output)
   with open(FLAGS.output, "w") as f:
-    f.write(reparsed.toprettyxml(indent="  "))
+    f.write(reparsed.toprettyxml(indent="  ", encoding="UTF-8"))
 
 if __name__ == "__main__":
   main(FLAGS(sys.argv))

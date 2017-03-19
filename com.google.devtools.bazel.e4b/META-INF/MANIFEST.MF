@@ -17,7 +17,7 @@ Require-Bundle: org.eclipse.ui.console,
  org.eclipse.core.resources
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
-Bundle-ClassPath: third_party/guava/guava-19.0.jar,
- third_party/json/json-20160212.jar,
+Bundle-ClassPath: runfiles/com_google_guava/jar/guava-21.0.jar,
+ runfiles/org_json/jar/json-20160212.jar,
  bin/
 Import-Package: org.eclipse.ui.dialogs

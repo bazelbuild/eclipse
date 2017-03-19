@@ -28,11 +28,5 @@ To import an existing Bazel project or start a new one, go to "New" > "Project..
 
 ## Missing features
 
-Interesting feature to add is first to be able to launch test from
-Eclipse, correctly adding the eclipse debugger to the JVM.
-
-Second, better support for BUILD file would be interesting. Maybe
-using Xtext.
-
-Finally, the code is completely missing tests and improving the test
-coverage would be great.
+See our [contributing page](https://github.com/bazelbuild/e4b/wiki/Contributing) to get
+some idea on what missing features need help on.

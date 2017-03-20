@@ -59,14 +59,14 @@ def java_rule_ide_info(target, ctx):
      sources = []
 
   jars = [library_artifact(output) for output in target.java.outputs.jars]
-  ide_resolve_files = set([jar
+  ide_resolve_files = depset([jar
        for output in target.java.outputs.jars
        for jar in jars_from_output(output)])
 
   gen_jars = []
   if target.java.annotation_processing and target.java.annotation_processing.enabled:
     gen_jars = [annotation_processing_jars(target.java.annotation_processing)]
-    ide_resolve_files = ide_resolve_files | set([ jar
+    ide_resolve_files = ide_resolve_files + depset([ jar
         for jar in [target.java.annotation_processing.class_jar,
                     target.java.annotation_processing.source_jar]
         if jar != None and not jar.is_source])
@@ -83,8 +83,8 @@ def _aspect_impl(target, ctx):
   kind = ctx.rule.kind
   rule_attrs = ctx.rule.attr
 
-  ide_info_text = set()
-  ide_resolve_files = set()
+  ide_info_text = depset()
+  ide_resolve_files = depset()
   all_deps = []
 
   for attr_name in DEPENDENCY_ATTRIBUTES:
@@ -92,8 +92,8 @@ def _aspect_impl(target, ctx):
       deps = getattr(rule_attrs, attr_name)
       if type(deps) == 'list':
         for dep in deps:
-          ide_info_text = ide_info_text | dep.intellij_info_files.ide_info_text
-          ide_resolve_files = ide_resolve_files | dep.intellij_info_files.ide_resolve_files
+          ide_info_text = ide_info_text + dep.intellij_info_files.ide_info_text
+          ide_resolve_files = ide_resolve_files + dep.intellij_info_files.ide_resolve_files
         all_deps += [str(dep.label) for dep in deps]
 
   if hasattr(target, "java"):
@@ -104,10 +104,10 @@ def _aspect_impl(target, ctx):
         dependencies = all_deps,
         build_file_artifact_location = ctx.build_file_path,
     ) + java_rule_ide_info_struct
-    ide_resolve_files = ide_resolve_files | java_ide_resolve_files
+    ide_resolve_files = ide_resolve_files + java_ide_resolve_files
     output = ctx.new_file(target.label.name + ".e4b-build.json")
     ctx.file_action(output, info.to_json())
-    ide_info_text += set([output])
+    ide_info_text += depset([output])
 
   return struct(
       output_groups = {

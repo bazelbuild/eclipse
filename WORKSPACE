@@ -1,4 +1,4 @@
-workspace(name = "build_bazel_e4b")
+workspace(name = "build_bazel_eclipse")
 
 load("//tools/build_defs:eclipse.bzl", "load_eclipse_deps")
 load(":bazel_version.bzl", "check_bazel_version")

@@ -19,7 +19,7 @@ This plugin was tested with Eclipse Mars (4.5) but should also work with Eclipse
    * Select "Help" > "Install Software"
    * Add the update
 site
-[http://bazelbuild.github.io/e4b/p2updatesite](http://bazelbuild.github.io/e4b/p2updatesite).
+[http://bazelbuild.github.io/eclipse/p2updatesite](http://bazelbuild.github.io/eclipse/p2updatesite).
    * Select "Uncategorized category" > "Eclipse 4 Bazel"
 
 ## Using the plugin
@@ -28,5 +28,5 @@ To import an existing Bazel project or start a new one, go to "New" > "Project..
 
 ## Missing features
 
-See our [contributing page](https://github.com/bazelbuild/e4b/wiki/Contributing) to get
+See our [contributing page](https://github.com/bazelbuild/eclipse/wiki/Contributing) to get
 some idea on what missing features need help on.

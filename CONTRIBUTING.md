@@ -25,5 +25,5 @@ the one above, the
 
 ## Contributing
 
-Please see the [contributing page on the wiki](https://github.com/bazelbuild/e4b/wiki/Contributing)
+Please see the [contributing page on the wiki](https://github.com/bazelbuild/eclipse/wiki/Contributing)
 on more practical matters on how to contribute to e4b.

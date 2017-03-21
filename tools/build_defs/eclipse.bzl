@@ -12,9 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# TODO(dmarting): mirror those jars.
 # TODO(dmarting): Provide checksums for those files.
-_EQUINOX_MIRROR_URL="http://download.eclipse.org/eclipse/updates/"
+_EQUINOX_MIRROR_URL="https://storage.googleapis.com/bazel-mirror/download.eclipse.org/eclipse/updates"
 _ECLIPSE_VERSION="4.5.2-201602121500"
 _DOWNLOAD_URL = "%s/%s/R-%s/plugins/%s_%s.jar" % (
     _EQUINOX_MIRROR_URL,

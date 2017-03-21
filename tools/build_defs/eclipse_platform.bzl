@@ -39,7 +39,9 @@ def _get_file_url(version, platform, t):
       drop,
       version,
       filename)
-  return ("http://www.eclipse.org/downloads/download.php?file=" + file, sha256)
+  # This is a mirror, original base url is http://www.eclipse.org/downloads/download.php?file= 
+  base_url = "https://storage.googleapis.com/bazel-mirror/download.eclipse.org"
+  return (base_url + file, sha256)
 
 
 def _eclipse_platform_impl(rctx):

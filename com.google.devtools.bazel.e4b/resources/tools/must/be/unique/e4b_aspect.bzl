@@ -17,6 +17,7 @@
 DEPENDENCY_ATTRIBUTES = [
   "deps",
   "runtime_deps",
+  "exports",
 ]
 
 def struct_omit_none(**kwargs):

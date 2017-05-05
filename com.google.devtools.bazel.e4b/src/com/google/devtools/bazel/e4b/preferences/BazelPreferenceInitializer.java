@@ -14,9 +14,12 @@
 
 package com.google.devtools.bazel.e4b.preferences;
 
+import java.io.File;
+
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.jface.preference.IPreferenceStore;
 
+import com.google.common.collect.ImmutableList;
 import com.google.devtools.bazel.e4b.Activator;
 
 /**
@@ -25,10 +28,24 @@ import com.google.devtools.bazel.e4b.Activator;
  */
 public class BazelPreferenceInitializer extends AbstractPreferenceInitializer {
 
+  private static final ImmutableList<String> BAZEL_PATH_CANDIDATES =
+      ImmutableList.of("/usr/local/bin/bazel", "/usr/bin/bazel");
+
   @Override
   public void initializeDefaultPreferences() {
     IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-    store.setDefault("BAZEL_PATH", Activator.DEFAULT_BAZEL_PATH);
+    store.setDefault("BAZEL_PATH", findBazelPath());
   }
 
+  private static String findBazelPath() {
+    for (String path : BAZEL_PATH_CANDIDATES) {
+      if (new File(path).isFile()) {
+        return path;
+      }
+    }
+
+    System.err.println("No candidate path for blaze found. Using default.");
+
+    return Activator.DEFAULT_BAZEL_PATH;
+  }
 }

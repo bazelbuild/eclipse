@@ -69,14 +69,14 @@ public class WorkspaceWizardPage extends WizardPage {
   /**
    * Returns the list of targets selected by the user.
    */
-  public ImmutableList<String> getTargets() {
+  ImmutableList<String> getTargets() {
     return ImmutableList.copyOf(targets.getItems());
   }
 
   /**
    * Returns the list of directories selected by the user.
    */
-  public ImmutableList<String> getDirectories() {
+  ImmutableList<String> getDirectories() {
     return DirectoryTreeContentProvider.getSelectPathsRelativeToRoot(directories);
   }
 

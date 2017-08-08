@@ -95,7 +95,7 @@ public class SelectOutputStream extends OutputStream {
   /**
    * Returns the list of selected lines.
    */
-  public ImmutableList<String> getLines() {
+  ImmutableList<String> getLines() {
     return ImmutableList.copyOf(lines);
   }
 }

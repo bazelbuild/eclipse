@@ -15,12 +15,12 @@
 package com.google.devtools.bazel.e4b.wizard;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.eclipse.jface.fieldassist.ContentProposal;
 import org.eclipse.jface.fieldassist.IContentProposal;
 import org.eclipse.jface.fieldassist.IContentProposalProvider;
 
-import com.google.common.collect.ImmutableList;
 import com.google.devtools.bazel.e4b.Activator;
 import com.google.devtools.bazel.e4b.command.BazelCommand.BazelInstance;
 import com.google.devtools.bazel.e4b.command.BazelNotFoundException;
@@ -40,7 +40,7 @@ public class BazelTargetCompletionContentProposalProvider implements IContentPro
       return null;
     }
     try {
-      ImmutableList<String> completions = bazel.complete(contents.substring(0, position));
+      List<String> completions = bazel.complete(contents.substring(0, position));
       if (completions != null) {
         IContentProposal[] result = new IContentProposal[completions.size()];
         int i = 0;

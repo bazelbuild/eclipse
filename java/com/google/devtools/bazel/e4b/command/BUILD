@@ -2,7 +2,7 @@ java_library(
     name = "command",
     srcs = glob(["*.java"]),
     visibility = [
-        "//com.google.devtools.bazel.e4b:__pkg__",
+        "//:__pkg__",
         "//javatests/com/google/devtools/bazel/e4b/command:__pkg__",
     ],
     deps = [

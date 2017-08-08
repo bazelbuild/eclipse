@@ -1,1 +1,1 @@
-../bazel-bin/com.google.devtools.bazel.e4b/com.google.devtools.bazel.e4b-bin.runfiles
+../bazel-bin/javatests/com/google/devtools/bazel/e4b/command/CommandTest.runfiles

@@ -1,9 +1,3 @@
-bin
+/bin
 .settings
-.DS_Store
-/.metadata
-/.recommenders
-p2updatesite/*.jar
-p2updatesite/features
-p2updatesite/plugins
 /bazel-*

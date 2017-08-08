@@ -2,9 +2,12 @@
 <classpath>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
-	<classpathentry kind="src" path="src"/>
+	<classpathentry excluding="**/BUILD|**/BUILD.bazel" kind="src" path="src"/>
+	<classpathentry excluding="**/BUILD|**/BUILD.bazel" kind="src" path="javatests"/>
 	<classpathentry exported="true" kind="lib" path="runfiles/com_google_guava/jar/guava-21.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="runfiles/org_json/jar/json-20160212.jar"/>
-	<classpathentry kind="lib" path="bin" sourcepath="bin"/>
+	<classpathentry kind="lib" path="runfiles/com_google_truth/jar/truth-0.31.jar"/>
+	<classpathentry kind="lib" path="runfiles/org_junit/jar/junit-4.11.jar"/>
+	<classpathentry kind="lib" path="runfiles/org_hamcrest_core/jar/hamcrest-core-1.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

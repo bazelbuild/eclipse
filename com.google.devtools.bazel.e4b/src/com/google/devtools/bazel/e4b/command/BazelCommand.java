@@ -216,7 +216,7 @@ public class BazelCommand {
      * 
      * @throws BazelNotFoundException
      */
-    public synchronized ImmutableMap<String, IdeBuildInfo> getIdeInfo(Collection<String> targets)
+    public synchronized Map<String, IdeBuildInfo> getIdeInfo(Collection<String> targets)
         throws IOException, InterruptedException, BazelNotFoundException {
       String key = NEW_LINE_JOINER.join(targets);
       if (!buildInfoCache.containsKey(key)) {
@@ -281,7 +281,7 @@ public class BazelCommand {
      * 
      * @throws BazelNotFoundException
      */
-    public ImmutableList<String> complete(String string)
+    public List<String> complete(String string)
         throws IOException, InterruptedException, BazelNotFoundException {
       if (string.equals("/") || string.isEmpty()) {
         return ImmutableList.of("//");

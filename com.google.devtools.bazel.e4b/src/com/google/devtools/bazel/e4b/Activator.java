@@ -16,6 +16,7 @@ package com.google.devtools.bazel.e4b;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ProjectScope;
@@ -107,7 +108,7 @@ public class Activator extends AbstractUIPlugin {
    * configured to track certain targets and this function fetch this list from the project
    * preferences.
    */
-  public static ImmutableList<String> getTargets(IProject project) throws BackingStoreException {
+  public static List<String> getTargets(IProject project) throws BackingStoreException {
     // Get the list of targets from the preferences
     IScopeContext projectScope = new ProjectScope(project);
     Preferences projectNode = projectScope.getNode(PLUGIN_ID);

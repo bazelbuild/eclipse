@@ -21,6 +21,7 @@ import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IResource;
@@ -34,8 +35,6 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.osgi.service.prefs.BackingStoreException;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.devtools.bazel.e4b.Activator;
 import com.google.devtools.bazel.e4b.command.BazelCommand.BazelInstance;
 import com.google.devtools.bazel.e4b.command.BazelNotFoundException;
@@ -103,8 +102,8 @@ public class BazelClasspathContainer implements IClasspathContainer {
   @Override
   public IClasspathEntry[] getClasspathEntries() {
     try {
-      ImmutableList<String> targets = Activator.getTargets(project.getProject());
-      ImmutableMap<String, IdeBuildInfo> infos = instance.getIdeInfo(targets);
+      List<String> targets = Activator.getTargets(project.getProject());
+      Map<String, IdeBuildInfo> infos = instance.getIdeInfo(targets);
       Set<Jars> jars = new HashSet<>();
       for (IdeBuildInfo s : infos.values()) {
         jars.addAll(s.getGeneratedJars());

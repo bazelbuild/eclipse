@@ -12,7 +12,7 @@ eclipse_plugin(
     srcs = glob(["java/**/*.java"]),
     activator = "com.google.devtools.bazel.e4b.Activator",
     bundle_name = "Eclipse 4 Bazel",
-    resources = glob(["resources/**"]) + ["//resources/tools/must/be/unique:srcs"],
+    resources = ["//resources:srcs"],
     vendor = "The Bazel Authors",
     version = VERSION,
     visibility = ["//visibility:public"],

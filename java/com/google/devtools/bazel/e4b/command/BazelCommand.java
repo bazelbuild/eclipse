@@ -14,10 +14,6 @@
 
 package com.google.devtools.bazel.e4b.command;
 
-import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.devtools.bazel.e4b.command.CommandConsole.CommandConsoleFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -29,6 +25,11 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.devtools.bazel.e4b.command.CommandConsole.CommandConsoleFactory;
+
 /**
  * Main utility to call bazel commands, wrapping its input and output to the message console.
  */
@@ -38,8 +39,8 @@ public class BazelCommand {
   private static Pattern VERSION_PATTERN =
       Pattern.compile("^([0-9]+)\\.([0-9]+)\\.([0-9]+)([^0-9].*)?$");
 
-  // Minimum bazel version needed to work with this plugin (currently 0.4.0)
-  private static int[] MINIMUM_BAZEL_VERSION = {0, 4, 0};
+  // Minimum bazel version needed to work with this plugin (currently 0.5.0)
+  private static int[] MINIMUM_BAZEL_VERSION = {0, 5, 0};
 
   private static enum ConsoleType {
     NO_CONSOLE, SYSTEM, WORKSPACE
@@ -62,7 +63,9 @@ public class BazelCommand {
     this.aspectLocation = aspectLocation;
     this.consoleFactory = consoleFactory;
     this.buildOptions =
-        ImmutableList.of("--watchfs", "--aspects=" + aspectLocation.getAspectLabel());
+        ImmutableList.of("--watchfs",
+            "--override_repository=local_eclipse_aspect=" + aspectLocation.getWorkspaceDirectory(),
+            "--aspects=@local_eclipse_aspect" + aspectLocation.getAspectLabel());
     this.aspectOptions = ImmutableList.<String>builder().addAll(buildOptions).add("-k",
         "--output_groups=ide-info-text,ide-resolve,-_,-defaults", "--experimental_show_artifacts")
         .build();
@@ -153,7 +156,6 @@ public class BazelCommand {
    */
   public class BazelInstance {
     private final File workspaceRoot;
-    private final String packagePath;
     private final File execRoot;
 
     private final Map<String, ImmutableMap<String, IdeBuildInfo>> buildInfoCache = new HashMap<>();
@@ -161,8 +163,6 @@ public class BazelCommand {
     private BazelInstance(File workspaceRoot)
         throws IOException, InterruptedException, BazelNotFoundException {
       this.workspaceRoot = workspaceRoot;
-      this.packagePath = String.join("", runBazel("info", "package_path")) + ":"
-          + aspectLocation.getWorkspaceDirectory().toString();
       this.execRoot = new File(String.join("", runBazel("info", "execution_root")));
     }
 
@@ -199,8 +199,8 @@ public class BazelCommand {
     private synchronized List<String> buildIdeInfo(Collection<String> targets)
         throws IOException, InterruptedException, BazelNotFoundException {
       return BazelCommand.this.runBazelAndGetErrorLines(ConsoleType.WORKSPACE, workspaceRoot,
-          ImmutableList.<String>builder().add("build").add("--package_path", packagePath)
-              .addAll(aspectOptions).addAll(targets).build(),
+          ImmutableList.<String>builder().add("build").addAll(aspectOptions).addAll(targets)
+              .build(),
           // Strip out the artifact list, keeping the e4b-build.json files.
           t -> t.startsWith(">>>") ? (t.endsWith(".e4b-build.json") ? t.substring(3) : "") : null);
     }
@@ -245,7 +245,7 @@ public class BazelCommand {
     public synchronized int build(List<String> targets, String... extraArgs)
         throws IOException, InterruptedException, BazelNotFoundException {
       return BazelCommand.this.runBazel(workspaceRoot,
-          ImmutableList.<String>builder().add("build", "--package_path", packagePath)
+          ImmutableList.<String>builder().add("build")
               .addAll(buildOptions).add(extraArgs).addAll(targets).build());
     }
 
@@ -257,7 +257,7 @@ public class BazelCommand {
     public synchronized int tests(List<String> targets, String... extraArgs)
         throws IOException, InterruptedException, BazelNotFoundException {
       return BazelCommand.this.runBazel(workspaceRoot,
-          ImmutableList.<String>builder().add("test").add("--package_path", packagePath)
+          ImmutableList.<String>builder().add("test")
               .addAll(buildOptions).add(extraArgs).addAll(targets).build());
     }
 

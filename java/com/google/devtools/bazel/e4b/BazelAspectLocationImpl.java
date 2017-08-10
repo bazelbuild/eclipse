@@ -14,12 +14,14 @@
 
 package com.google.devtools.bazel.e4b;
 
-import com.google.devtools.bazel.e4b.command.BazelAspectLocation;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
+
+import com.google.devtools.bazel.e4b.command.BazelAspectLocation;
 
 /** Implementation of {@link BazelAspectLocation} using Eclipse OSGi Bundle locations */
 class BazelAspectLocationImpl implements BazelAspectLocation {
@@ -44,7 +46,7 @@ class BazelAspectLocationImpl implements BazelAspectLocation {
 
   @Override
   public String getAspectLabel() {
-    return "//tools/must/be/unique:e4b_aspect.bzl%e4b_aspect";
+    return "//:e4b_aspect.bzl%e4b_aspect";
   }
 
 }

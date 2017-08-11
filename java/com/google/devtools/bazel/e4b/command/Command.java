@@ -14,14 +14,15 @@
 
 package com.google.devtools.bazel.e4b.command;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import com.google.devtools.bazel.e4b.command.CommandConsole.CommandConsoleFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.function.Function;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import com.google.devtools.bazel.e4b.command.CommandConsole.CommandConsoleFactory;
 
 /**
  * A utility class to spawn a command and parse its output. It allow to filter the output,
@@ -30,7 +31,7 @@ import java.util.function.Function;
  * <p>
  * This class can only be initialized using a builder created with the {@link #builder()} method.
  */
-final class Command {
+final public class Command {
 
   private final File directory;
   private final ImmutableList<String> args;
@@ -127,7 +128,7 @@ final class Command {
    *
    * @see {@link Builder#setStderrLineSelector(Function)}
    */
-  ImmutableList<String> getSelectedErrorLines() {
+  public ImmutableList<String> getSelectedErrorLines() {
     return stderr.getLines();
   }
 
@@ -137,14 +138,14 @@ final class Command {
    *
    * @see {@link Builder#setStdoutLineSelector(Function)}
    */
-  ImmutableList<String> getSelectedOutputLines() {
+  public ImmutableList<String> getSelectedOutputLines() {
     return stdout.getLines();
   }
 
   /**
    * A builder class to generate a Command object.
    */
-  static class Builder {
+  public static class Builder {
 
     private String consoleName = null;
     private File directory;

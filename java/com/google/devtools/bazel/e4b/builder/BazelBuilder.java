@@ -25,6 +25,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.osgi.service.prefs.BackingStoreException;
 
 import com.google.devtools.bazel.e4b.Activator;
+import com.google.devtools.bazel.e4b.BazelProjectSupport;
 import com.google.devtools.bazel.e4b.command.BazelCommand.BazelInstance;
 import com.google.devtools.bazel.e4b.command.BazelNotFoundException;
 
@@ -35,7 +36,7 @@ public class BazelBuilder extends IncrementalProjectBuilder {
       throws CoreException {
     IProject project = getProject();
     try {
-      BazelInstance instance = Activator.getBazelCommandInstance(project);
+      BazelInstance instance = BazelProjectSupport.getBazelCommandInstance(project);
       if (kind == INCREMENTAL_BUILD || kind == AUTO_BUILD) {
         IResourceDelta delta = getDelta(getProject());
         if (delta == null || delta.getAffectedChildren().length == 0) {
@@ -44,7 +45,8 @@ public class BazelBuilder extends IncrementalProjectBuilder {
         }
       }
       instance.markAsDirty();
-      instance.build(Activator.getTargets(project));
+      instance.build(BazelProjectSupport.getTargets(project),
+          BazelProjectSupport.getBuildFlags(project));
     } catch (BackingStoreException | IOException | InterruptedException e) {
       Activator.error("Failed to build " + project.getName(), e);
     } catch (BazelNotFoundException e) {

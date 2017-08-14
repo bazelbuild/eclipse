@@ -36,6 +36,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.osgi.service.prefs.BackingStoreException;
 
 import com.google.devtools.bazel.e4b.Activator;
+import com.google.devtools.bazel.e4b.BazelProjectSupport;
 import com.google.devtools.bazel.e4b.command.BazelCommand.BazelInstance;
 import com.google.devtools.bazel.e4b.command.BazelNotFoundException;
 import com.google.devtools.bazel.e4b.command.IdeBuildInfo;
@@ -53,7 +54,7 @@ public class BazelClasspathContainer implements IClasspathContainer {
       BazelNotFoundException {
     this.path = path;
     this.project = project;
-    this.instance = Activator.getBazelCommandInstance(project.getProject());
+    this.instance = BazelProjectSupport.getBazelCommandInstance(project.getProject());
   }
 
   private boolean isSourcePath(String path) throws JavaModelException, BackingStoreException {
@@ -102,7 +103,7 @@ public class BazelClasspathContainer implements IClasspathContainer {
   @Override
   public IClasspathEntry[] getClasspathEntries() {
     try {
-      List<String> targets = Activator.getTargets(project.getProject());
+      List<String> targets = BazelProjectSupport.getTargets(project.getProject());
       Map<String, IdeBuildInfo> infos = instance.getIdeInfo(targets);
       Set<Jars> jars = new HashSet<>();
       for (IdeBuildInfo s : infos.values()) {

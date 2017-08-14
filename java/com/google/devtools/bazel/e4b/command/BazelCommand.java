@@ -62,10 +62,9 @@ public class BazelCommand {
   public BazelCommand(BazelAspectLocation aspectLocation, CommandConsoleFactory consoleFactory) {
     this.aspectLocation = aspectLocation;
     this.consoleFactory = consoleFactory;
-    this.buildOptions =
-        ImmutableList.of("--watchfs",
-            "--override_repository=local_eclipse_aspect=" + aspectLocation.getWorkspaceDirectory(),
-            "--aspects=@local_eclipse_aspect" + aspectLocation.getAspectLabel());
+    this.buildOptions = ImmutableList.of("--watchfs",
+        "--override_repository=local_eclipse_aspect=" + aspectLocation.getWorkspaceDirectory(),
+        "--aspects=@local_eclipse_aspect" + aspectLocation.getAspectLabel());
     this.aspectOptions = ImmutableList.<String>builder().addAll(buildOptions).add("-k",
         "--output_groups=ide-info-text,ide-resolve,-_,-defaults", "--experimental_show_artifacts")
         .build();
@@ -135,7 +134,7 @@ public class BazelCommand {
   /**
    * Returns a {@link BazelInstance} for the given directory. It looks for the enclosing workspace
    * and returns the instance that correspond to it. If not in a workspace, returns null.
-   * 
+   *
    * @throws BazelNotFoundException
    */
   public BazelInstance getInstance(File directory)
@@ -168,7 +167,7 @@ public class BazelCommand {
 
     /**
      * Returns the list of targets present in the BUILD files for the given sub-directories.
-     * 
+     *
      * @throws BazelNotFoundException
      */
     public synchronized List<String> listTargets(File... directories)
@@ -193,7 +192,7 @@ public class BazelCommand {
     /**
      * Returns the IDE build information from running the aspect over the given list of targets. The
      * result is a list of of path to the output artifact created by the build.
-     * 
+     *
      * @throws BazelNotFoundException
      */
     private synchronized List<String> buildIdeInfo(Collection<String> targets)
@@ -213,7 +212,7 @@ public class BazelCommand {
      * <p>
      * This method cache it results and won't recompute a previously computed version unless
      * {@link #markAsDirty()} has been called in between.
-     * 
+     *
      * @throws BazelNotFoundException
      */
     public synchronized Map<String, IdeBuildInfo> getIdeInfo(Collection<String> targets)
@@ -239,26 +238,35 @@ public class BazelCommand {
 
     /**
      * Build a list of targets in the current workspace.
-     * 
+     *
      * @throws BazelNotFoundException
      */
     public synchronized int build(List<String> targets, String... extraArgs)
         throws IOException, InterruptedException, BazelNotFoundException {
-      return BazelCommand.this.runBazel(workspaceRoot,
-          ImmutableList.<String>builder().add("build")
-              .addAll(buildOptions).add(extraArgs).addAll(targets).build());
+      return BazelCommand.this.runBazel(workspaceRoot, ImmutableList.<String>builder().add("build")
+          .addAll(buildOptions).add(extraArgs).addAll(targets).build());
+    }
+
+    /**
+     * Build a list of targets in the current workspace.
+     *
+     * @throws BazelNotFoundException
+     */
+    public synchronized int build(List<String> targets, List<String> extraArgs)
+        throws IOException, InterruptedException, BazelNotFoundException {
+      return BazelCommand.this.runBazel(workspaceRoot, ImmutableList.<String>builder().add("build")
+          .addAll(buildOptions).addAll(extraArgs).addAll(targets).build());
     }
 
     /**
      * Run test on a list of targets in the current workspace.
-     * 
+     *
      * @throws BazelNotFoundException
      */
     public synchronized int tests(List<String> targets, String... extraArgs)
         throws IOException, InterruptedException, BazelNotFoundException {
-      return BazelCommand.this.runBazel(workspaceRoot,
-          ImmutableList.<String>builder().add("test")
-              .addAll(buildOptions).add(extraArgs).addAll(targets).build());
+      return BazelCommand.this.runBazel(workspaceRoot, ImmutableList.<String>builder().add("test")
+          .addAll(buildOptions).add(extraArgs).addAll(targets).build());
     }
 
     /**
@@ -278,7 +286,7 @@ public class BazelCommand {
     /**
      * Gives a list of target completions for the given beginning string. The result is the list of
      * possible completion for a target pattern starting with string.
-     * 
+     *
      * @throws BazelNotFoundException
      */
     public List<String> complete(String string)

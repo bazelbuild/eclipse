@@ -87,6 +87,13 @@ public class WorkspaceWizardPage extends WizardPage {
     return workspaceRoot.getText();
   }
 
+  /**
+   * Returns the language version for the new project.
+   */
+  int getJavaLanguageVersion() {
+    return 8;
+  }
+
 
   @Override
   public void createControl(Composite parent) {
@@ -226,6 +233,7 @@ public class WorkspaceWizardPage extends WizardPage {
     target = new Text(container, SWT.BORDER);
     setAutoCompletion();
     target.addKeyListener(new KeyAdapter() {
+      @Override
       public void keyReleased(KeyEvent ke) {
         if (ke.keyCode == '\r' && (ke.stateMask & SWT.SHIFT) != 0 && !target.getText().isEmpty()) {
           addTarget();

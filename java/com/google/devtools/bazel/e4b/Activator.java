@@ -14,25 +14,13 @@
 
 package com.google.devtools.bazel.e4b;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.prefs.BackingStoreException;
-import org.osgi.service.prefs.Preferences;
 
-import com.google.common.collect.ImmutableList;
 import com.google.devtools.bazel.e4b.command.BazelCommand;
-import com.google.devtools.bazel.e4b.command.BazelCommand.BazelInstance;
-import com.google.devtools.bazel.e4b.command.BazelNotFoundException;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -100,40 +88,6 @@ public class Activator extends AbstractUIPlugin {
    */
   public BazelCommand getCommand() {
     return command;
-  }
-
-
-  /**
-   * List targets configure for <code>project</code>. Each project configured for Bazel is
-   * configured to track certain targets and this function fetch this list from the project
-   * preferences.
-   */
-  public static List<String> getTargets(IProject project) throws BackingStoreException {
-    // Get the list of targets from the preferences
-    IScopeContext projectScope = new ProjectScope(project);
-    Preferences projectNode = projectScope.getNode(PLUGIN_ID);
-    ImmutableList.Builder<String> builder = ImmutableList.builder();
-    for (String s : projectNode.keys()) {
-      if (s.startsWith("target")) {
-        builder.add(projectNode.get(s, ""));
-      }
-    }
-    return builder.build();
-  }
-
-  /**
-   * Return the {@link BazelInstance} corresponding to the given <code>project</code>. It looks for
-   * the instance that runs for the workspace root configured for that project.
-   * 
-   * @throws BazelNotFoundException
-   */
-  public static BazelCommand.BazelInstance getBazelCommandInstance(IProject project)
-      throws BackingStoreException, IOException, InterruptedException, BazelNotFoundException {
-    IScopeContext projectScope = new ProjectScope(project.getProject());
-    Preferences projectNode = projectScope.getNode(Activator.PLUGIN_ID);
-    File workspaceRoot =
-        new File(projectNode.get("workspaceRoot", project.getLocation().toFile().toString()));
-    return getDefault().getCommand().getInstance(workspaceRoot);
   }
 
   /**

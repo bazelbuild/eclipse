@@ -20,6 +20,8 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchWizard;
 import org.eclipse.ui.dialogs.WizardNewProjectCreationPage;
 
+import com.google.devtools.bazel.e4b.BazelProjectSupport;
+
 /**
  * A wizard to create a Bazel import project.
  */
@@ -44,7 +46,8 @@ public class BazelWizard extends Wizard implements IWorkbenchWizard {
   @Override
   public boolean performFinish() {
     BazelProjectSupport.createProject(page1.getProjectName(), page1.getLocationURI(),
-        page2.getWorkspaceRoot(), page2.getDirectories(), page2.getTargets());
+        page2.getWorkspaceRoot(), page2.getDirectories(), page2.getTargets(),
+        page2.getJavaLanguageVersion());
     return true;
   }
 

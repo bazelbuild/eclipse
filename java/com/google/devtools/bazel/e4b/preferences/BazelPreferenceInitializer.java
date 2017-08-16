@@ -14,6 +14,8 @@
 
 package com.google.devtools.bazel.e4b.preferences;
 
+import java.io.File;
+
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.jface.preference.IPreferenceStore;
 
@@ -25,10 +27,20 @@ import com.google.devtools.bazel.e4b.Activator;
  */
 public class BazelPreferenceInitializer extends AbstractPreferenceInitializer {
 
+  private static String which(String name, String def) {
+    for (String dirname : System.getenv("PATH").split(File.pathSeparator)) {
+      File file = new File(dirname, name);
+      if (file.isFile() && file.canExecute()) {
+        return file.getAbsolutePath();
+      }
+    }
+    return def;
+  }
+
   @Override
   public void initializeDefaultPreferences() {
     IPreferenceStore store = Activator.getDefault().getPreferenceStore();
-    store.setDefault("BAZEL_PATH", Activator.DEFAULT_BAZEL_PATH);
+    store.setDefault("BAZEL_PATH", which("bazel", "/usr/local/bin/bazel"));
   }
 
 }

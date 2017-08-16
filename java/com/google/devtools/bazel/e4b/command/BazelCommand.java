@@ -53,7 +53,7 @@ public class BazelCommand {
   private final List<String> aspectOptions;
 
   private final Map<File, BazelInstance> instances = new HashMap<>();
-  private String bazel = null;
+  private File bazel = null;
 
   /**
    * Create a {@link BazelCommand} object, providing the implementation for locating aspect and
@@ -71,17 +71,18 @@ public class BazelCommand {
   }
 
   private String getBazelPath() throws BazelNotFoundException {
-    if (bazel == null) {
+    if (bazel == null || !bazel.exists() || !bazel.canExecute()) {
       throw new BazelNotFoundException.BazelNotSetException();
     }
-    return bazel;
+
+    return bazel.toString();
   }
 
   /**
    * Set the path to the Bazel binary.
    */
   public synchronized void setBazelPath(String bazel) {
-    this.bazel = bazel;
+    this.bazel = new File(bazel);
   }
 
   /**

@@ -245,7 +245,7 @@ public class BazelCommand {
     public synchronized int build(List<String> targets, String... extraArgs)
         throws IOException, InterruptedException, BazelNotFoundException {
       return BazelCommand.this.runBazel(workspaceRoot, ImmutableList.<String>builder().add("build")
-          .addAll(buildOptions).add(extraArgs).addAll(targets).build());
+          .addAll(buildOptions).add(extraArgs).add("--").addAll(targets).build());
     }
 
     /**
@@ -256,7 +256,7 @@ public class BazelCommand {
     public synchronized int build(List<String> targets, List<String> extraArgs)
         throws IOException, InterruptedException, BazelNotFoundException {
       return BazelCommand.this.runBazel(workspaceRoot, ImmutableList.<String>builder().add("build")
-          .addAll(buildOptions).addAll(extraArgs).addAll(targets).build());
+          .addAll(buildOptions).addAll(extraArgs).add("--").addAll(targets).build());
     }
 
     /**
@@ -267,7 +267,7 @@ public class BazelCommand {
     public synchronized int tests(List<String> targets, String... extraArgs)
         throws IOException, InterruptedException, BazelNotFoundException {
       return BazelCommand.this.runBazel(workspaceRoot, ImmutableList.<String>builder().add("test")
-          .addAll(buildOptions).add(extraArgs).addAll(targets).build());
+          .addAll(buildOptions).add(extraArgs).add("--").addAll(targets).build());
     }
 
     /**

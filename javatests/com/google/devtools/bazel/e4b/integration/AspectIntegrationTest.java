@@ -22,9 +22,11 @@ import java.io.File;
 import org.junit.Before;
 import org.junit.Test;
 
+import build.bazel.tests.integration.Command;
+import build.bazel.tests.integration.BazelBaseTestCase;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.devtools.bazel.e4b.command.Command;
 import com.google.devtools.bazel.e4b.command.IdeBuildInfo;
 
 /** Integration test for the aspect used by the plugin. */
@@ -97,9 +99,9 @@ public final class AspectIntegrationTest extends BazelBaseTestCase {
         "--output_groups=ide-info-text,ide-resolve,-_,-defaults", "--experimental_show_artifacts",
         "//...");
     int retCode = cmd.run();
-    assertEquals("Bazel failed to build, stderr: " + LINE_JOINER.join(cmd.getSelectedErrorLines()),
+    assertEquals("Bazel failed to build, stderr: " + LINE_JOINER.join(cmd.getErrorLines()),
         0, retCode);
-    String[] jsonFiles = cmd.getSelectedErrorLines().stream().filter((s) -> {
+    String[] jsonFiles = cmd.getErrorLines().stream().filter((s) -> {
       return s.startsWith(">>>") && s.endsWith(".json");
     }).map((s) -> {
       return s.substring(3);

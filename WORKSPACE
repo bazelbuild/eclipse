@@ -1,11 +1,19 @@
 workspace(name = "build_bazel_eclipse")
 
-load("//tools/build_defs:eclipse.bzl", "load_eclipse_deps")
-load("//:bazel_version.bzl", "check_bazel_version")
-load("//tools/build_defs:bazel_integration_test.bzl", "bazel_binaries")
-check_bazel_version("0.5.0")
-bazel_binaries()
+# TODO(dmarting): switch to release version of integration testing
+http_archive(
+    name = "build_bazel_integration_testing",
+    url = "https://github.com/bazelbuild/bazel-integration-testing/archive/55a6a70dbcc2cc7699ee715746fb1452788f8d3c.zip",
+    sha256 = "b505866c12b9f6ce08b96a16305407deae43bef7655a8e7c2197d08c24c6cb04",
+    strip_prefix = "bazel-integration-testing-55a6a70dbcc2cc7699ee715746fb1452788f8d3c",
+)
 
+load("@build_bazel_integration_testing//:bazel_version.bzl", "check_bazel_version")
+load("@build_bazel_integration_testing//tools:bazel_java_integration_test.bzl", "bazel_java_integration_test_deps")
+check_bazel_version("0.5.0")
+bazel_java_integration_test_deps()
+
+load("//tools/build_defs:eclipse.bzl", "load_eclipse_deps")
 load_eclipse_deps()
 
 new_http_archive(
@@ -27,23 +35,8 @@ py_library(
 
 # TODO(dmarting): Use http_file and relies on a mirror instead of maven_jar
 maven_jar(
-    name = "com_google_guava",
-    artifact = "com.google.guava:guava:jar:21.0",
-)
-
-maven_jar(
     name = "org_json",
     artifact = "org.json:json:jar:20160212",
-)
-
-maven_jar(
-    name = "org_hamcrest_core",
-    artifact = "org.hamcrest:hamcrest-core:jar:1.3",
-)
-
-maven_jar(
-    name = "org_junit",
-    artifact = "junit:junit:jar:4.11",
 )
 
 maven_jar(

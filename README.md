@@ -26,7 +26,8 @@ site
 
 To import an existing Bazel project or start a new one, go to "New" > "Project..." > "Others".
 
-## Missing features
+## Contributing
 
-See our [contributing page](https://github.com/bazelbuild/eclipse/wiki/Contributing) to get
-some idea on what missing features need help on.
+See our [contributing
+page](https://github.com/bazelbuild/eclipse/blob/master/CONTRIBUTING.md) for how
+to contribute.

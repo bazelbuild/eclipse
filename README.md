@@ -19,7 +19,7 @@ This plugin was tested with Eclipse Mars (4.5) but should also work with Eclipse
    * Select "Help" > "Install Software"
    * Add the update
 site
-[http://bazelbuild.github.io/eclipse/p2updatesite](http://bazelbuild.github.io/eclipse/p2updatesite).
+[https://eclipse.bazel.build/updatesite](https://eclipse.bazel.build/updatesite).
    * Select "Uncategorized category" > "Eclipse 4 Bazel"
 
 ## Using the plugin

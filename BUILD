@@ -4,8 +4,7 @@ load(
     "eclipse_feature",
     "eclipse_p2updatesite",
 )
-
-VERSION = "0.0.3.qualifier"
+load(":version.bzl", "VERSION")
 
 eclipse_plugin(
     name = "com.google.devtools.bazel.e4b",
@@ -43,5 +42,6 @@ eclipse_p2updatesite(
     description = "Eclipse plugin for Bazel",
     eclipse_features = [":com.google.devtools.bazel.e4b.feature"],
     label = "Eclipse 4 Bazel",
-    url = "https://bazelbuild.github.io/e4b",
+    url = "https://eclipse.bazel.build",
+    visibility = ["//tools/release:__pkg__"],
 )

@@ -2,7 +2,7 @@
 
 e4b is an Eclipse plugin for Bazel. It is really rudimentary.
 It simply supports creating the classpath from a project and using
-Bazel for incremental builds..
+Bazel for incremental builds.
 
 You can create a new Bazel project with New project > Import Bazel project
 Then you can select the list of targets you want to build and the list

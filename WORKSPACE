@@ -1,5 +1,14 @@
 workspace(name = "build_bazel_eclipse")
 
+git_repository(
+    name = "bazel_skylib",
+    remote = "https://github.com/bazelbuild/bazel-skylib",
+    commit = "34d62c4490826f7642843e0617d7fa614994ef79",
+)
+
+load("@bazel_skylib//:lib.bzl", "versions")
+versions.check("0.5.0")
+
 # TODO(dmarting): switch to release version of integration testing
 http_archive(
     name = "build_bazel_integration_testing",
@@ -8,9 +17,7 @@ http_archive(
     strip_prefix = "bazel-integration-testing-55a6a70dbcc2cc7699ee715746fb1452788f8d3c",
 )
 
-load("@build_bazel_integration_testing//:bazel_version.bzl", "check_bazel_version")
 load("@build_bazel_integration_testing//tools:bazel_java_integration_test.bzl", "bazel_java_integration_test_deps")
-check_bazel_version("0.5.0")
 bazel_java_integration_test_deps()
 
 load("//tools/build_defs:eclipse.bzl", "load_eclipse_deps")

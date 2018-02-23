@@ -1,3 +1,5 @@
+[![Build status](https://badge.buildkite.com/7d78219bdc587a47f48cc96314f36f0f25ed9d0145f56b12ab.svg)](https://buildkite.com/bazel/eclipse-plugin-postsubmit)
+
 # Eclipse plugin for [Bazel](http://bazel.io) (**Highly experimental**)
 
 e4b is an Eclipse plugin for Bazel. It is really rudimentary.

@@ -93,8 +93,9 @@ def _aspect_impl(target, ctx):
       deps = getattr(rule_attrs, attr_name)
       if type(deps) == 'list':
         for dep in deps:
-          ide_info_text = ide_info_text + dep.intellij_info_files.ide_info_text
-          ide_resolve_files = ide_resolve_files + dep.intellij_info_files.ide_resolve_files
+          if hasattr(dep, "intellij_info_files"):
+           ide_info_text = ide_info_text + dep.intellij_info_files.ide_info_text
+           ide_resolve_files = ide_resolve_files + dep.intellij_info_files.ide_resolve_files
         all_deps += [str(dep.label) for dep in deps]
 
   if hasattr(target, "java"):

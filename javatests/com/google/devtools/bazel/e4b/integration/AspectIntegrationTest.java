@@ -18,35 +18,44 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import build.bazel.tests.integration.Command;
-import build.bazel.tests.integration.BazelBaseTestCase;
+import build.bazel.tests.integration.WorkspaceDriver;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.devtools.bazel.e4b.command.IdeBuildInfo;
 
 /** Integration test for the aspect used by the plugin. */
-public final class AspectIntegrationTest extends BazelBaseTestCase {
+public final class AspectIntegrationTest {
 
-  private File aspectWorkspace;
+  private WorkspaceDriver driver = new WorkspaceDriver();
+  private Path aspectWorkspace;
+
+  @BeforeClass
+  public static void setUpClass() throws IOException {
+    WorkspaceDriver.setUpClass();
+  }
 
   @Before
-  @Override
   public void setUp() throws Exception {
-    super.setUp();
-    aspectWorkspace = workspace;
-    copyFromRunfiles("build_bazel_eclipse/resources/e4b_aspect.bzl", "e4b_aspect.bzl");
-    scratchFile("BUILD");
-    newWorkspace();
+    driver.setUp();
+    aspectWorkspace = driver.currentWorkspace();
+    driver.copyFromRunfiles("build_bazel_eclipse/resources/e4b_aspect.bzl", "e4b_aspect.bzl");
+    driver.scratchFile("BUILD");
+    driver.newWorkspace();
     createJavaProgram();
   }
 
   private void createJavaProgram() throws Exception {
-    scratchFile("java/my/pkg/Main.java", // force-new-line
+    driver.scratchFile("java/my/pkg/Main.java", // force-new-line
         "package my.pkg;", // force-new-line
         "import my.other.pkg.Annex;", // force-new-line
         "public class Main {", // force-new-line
@@ -54,11 +63,11 @@ public final class AspectIntegrationTest extends BazelBaseTestCase {
         "    System.out.println(new Annex().helloWorld());", // force-new-line
         "  }", // force-new-line
         "}");
-    scratchFile("java/my/pkg/BUILD", // force-new-line
+    driver.scratchFile("java/my/pkg/BUILD", // force-new-line
         "java_binary(name='pkg',", // force-new-line
         "            srcs=['Main.java'],", // force-new-line
         "            deps=['//java/my/other/pkg:Annex'])");
-    scratchFile("java/my/other/pkg/Annex.java", // force-new-line
+    driver.scratchFile("java/my/other/pkg/Annex.java", // force-new-line
         "package my.other.pkg;", // force-new-line
 
 
@@ -69,11 +78,11 @@ public final class AspectIntegrationTest extends BazelBaseTestCase {
         "    return \"Hello, World!\";", // force-new-line
         "  }", // force-new-line
         "}");
-    scratchFile("java/my/other/pkg/BUILD", // force-new-line
+    driver.scratchFile("java/my/other/pkg/BUILD", // force-new-line
         "java_library(name='Annex',", // force-new-line
         "             srcs=['Annex.java'],", // force-new-line
         "             visibility = ['//visibility:public'])");
-    scratchFile("javatests/my/other/pkg/AnnexTest.java", // force-new-line
+    driver.scratchFile("javatests/my/other/pkg/AnnexTest.java", // force-new-line
         "package my.other.pkg;", // force-new-line
 
         "import static org.junit.Assert.assertEquals;", // force-new-line
@@ -86,7 +95,7 @@ public final class AspectIntegrationTest extends BazelBaseTestCase {
         "    assertEquals(\"Hello, World!\", new Annex().helloWorld());", // force-new-line
         "  }", // force-new-line
         "}");
-    scratchFile("javatests/my/other/pkg/BUILD", // force-new-line
+    driver.scratchFile("javatests/my/other/pkg/BUILD", // force-new-line
         "java_test(name='AnnexTest',", // force-new-line
         "          srcs=['AnnexTest.java'],", // force-new-line
         "          deps=['//java/my/other/pkg:Annex'])");
@@ -94,12 +103,12 @@ public final class AspectIntegrationTest extends BazelBaseTestCase {
 
   @Test
   public void testAspectGenerateJson() throws Exception {
-    Command cmd = bazel("build", "--override_repository=local_eclipse_aspect=" + aspectWorkspace,
+    Command cmd = driver.bazelCommand("build", "--override_repository=local_eclipse_aspect=" + aspectWorkspace,
         "--aspects=@local_eclipse_aspect//:e4b_aspect.bzl%e4b_aspect", "-k",
         "--output_groups=ide-info-text,ide-resolve,-_,-defaults", "--experimental_show_artifacts",
-        "//...");
+        "//...").build();
     int retCode = cmd.run();
-    assertEquals("Bazel failed to build, stderr: " + LINE_JOINER.join(cmd.getErrorLines()),
+    assertEquals("Bazel failed to build, stderr: " + Joiner.on("\n").join(cmd.getErrorLines()),
         0, retCode);
     String[] jsonFiles = cmd.getErrorLines().stream().filter((s) -> {
       return s.startsWith(">>>") && s.endsWith(".json");

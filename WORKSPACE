@@ -12,9 +12,9 @@ versions.check("0.5.0")
 # TODO(dmarting): switch to release version of integration testing
 http_archive(
     name = "build_bazel_integration_testing",
-    url = "https://github.com/bazelbuild/bazel-integration-testing/archive/55a6a70dbcc2cc7699ee715746fb1452788f8d3c.zip",
-    sha256 = "b505866c12b9f6ce08b96a16305407deae43bef7655a8e7c2197d08c24c6cb04",
-    strip_prefix = "bazel-integration-testing-55a6a70dbcc2cc7699ee715746fb1452788f8d3c",
+    url = "https://github.com/bazelbuild/bazel-integration-testing/archive/7ace2e7fbfc32f89222a85804b574a1e07583ddc.zip",
+    sha256 = "44de2377d38ad2386be132a21bae9b61291d546303747d72b454a735e18fa923",
+    strip_prefix = "bazel-integration-testing-7ace2e7fbfc32f89222a85804b574a1e07583ddc",
 )
 
 load("@build_bazel_integration_testing//tools:bazel_java_integration_test.bzl", "bazel_java_integration_test_deps")

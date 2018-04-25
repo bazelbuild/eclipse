@@ -9,6 +9,6 @@
 	<classpathentry kind="lib" path="runfiles/com_google_truth/jar/truth-0.31.jar"/>
 	<classpathentry kind="lib" path="runfiles/org_junit/jar/junit-4.11.jar"/>
 	<classpathentry kind="lib" path="runfiles/org_hamcrest_core/jar/hamcrest-core-1.3.jar"/>
-	<classpathentry kind="lib" path="runfiles/build_bazel_integration_testing/java/build/bazel/tests/integration/libintegration.jar"/>
+	<classpathentry kind="lib" path="runfiles/build_bazel_integration_testing/java/build/bazel/tests/integration/libworkspace_driver.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

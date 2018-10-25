@@ -2,6 +2,8 @@
 
 # Eclipse plugin for [Bazel](http://bazel.io) (**Highly experimental**)
 
+__This project is unmaintained__
+
 e4b is an Eclipse plugin for Bazel. It is really rudimentary.
 It simply supports creating the classpath from a project and using
 Bazel for incremental builds.

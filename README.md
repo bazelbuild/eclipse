@@ -2,7 +2,11 @@
 
 # Eclipse plugin for [Bazel](http://bazel.io) (**Highly experimental**)
 
-__This project is unmaintained__
+## Current status
+
+__This project is unmaintained__. See https://github.com/salesforce/bazel-eclipse for the current Eclipse Feature for developing projects in Eclipse.
+
+## Overview
 
 e4b is an Eclipse plugin for Bazel. It is really rudimentary.
 It simply supports creating the classpath from a project and using
